@@ -1,0 +1,6 @@
+Version 0.1.2
+
+- Fixed a localization subscription regression that could cause crashes for some users
+- Added safer localization formatting fallbacks to prevent bad text resources from crashing the HUD
+- Kept bilingual English and Simplified Chinese UI behavior tied to the game's current language
+- Updated release documentation with clearer usage, installation, and migration instructions
