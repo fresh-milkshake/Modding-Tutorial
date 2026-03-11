@@ -89,21 +89,31 @@ Observed in vanilla STS2:
 - `localization/eng/relics.json`
 - many other `localization/<lang>/*.json` files
 
-Therefore, do **not** document a single universal mod localization layout unless you have verified it against the current loader implementation.
+However, the current loader implementation is stricter than that high-level observation might suggest.
+
+Verified in the current build:
+
+- `ModManager.GetModdedLocTables(language, file)` looks for `res://<pck_name>/localization/<language>/<file>`
+- that means a modded `relics.json` intended to merge into the base `relics` table should be packed under a folder named after the manifest `pck_name`
+- example: if `pck_name` is `VenomousDeity`, the working path is `res://VenomousDeity/localization/eng/relics.json`
+
+Therefore, do **not** document a single universal mod localization layout unless you have verified it against the current loader implementation, and do not assume that a flat `res://localization/...` mod path will be merged just because vanilla uses it.
 
 Safe statement:
 
 - STS2 can gather modded localization tables
 - the vanilla game uses `localization/<lang>/...`
-- community and real-world mods show more than one working mod-side packaging layout
+- the current modded merge path is `res://<pck_name>/localization/<lang>/<file>`
+- community and real-world mods may still include other localization JSON layouts for their own internal systems or UI
 
 ## Recommended Practical Localization Strategy
 
 For a new mod, the safest documented path is:
 
-1. start from the lamali guide's localization convention because it is the clearest public workflow
-2. validate your exact layout against a current game build before you scale it up
-3. compare against a known working mod if your strings do not load
+1. keep your base table names aligned with vanilla, for example `relics.json`
+2. pack them under `res://<pck_name>/localization/<lang>/...`
+3. validate your exact layout against a current game build before you scale it up
+4. compare against a known working mod if your strings do not load
 
 If you are debugging localization problems, compare all three sources:
 
@@ -157,7 +167,7 @@ godotpcktool.exe `
   --file "D:\path\to\godot-export-root\mod_manifest.json" `
   --file "D:\path\to\godot-export-root\project.binary" `
   --file "D:\path\to\godot-export-root\images\..." `
-  --file "D:\path\to\godot-export-root\localization\..."
+  --file "D:\path\to\godot-export-root\MyMod\localization\eng\relics.json"
 ```
 
 Interpretation:
@@ -168,6 +178,25 @@ Interpretation:
 - `--remove-prefix` strips your local export root so the paths inside the pack are relative
 
 Always inspect the resulting pack after building it. A `.pck` that exists is not automatically a `.pck` with the right internal paths.
+
+For localization specifically, inspect the internal pack path, not just the filename on disk. A modded `relics.json` in the wrong folder can exist in the `.pck` and still never be merged by the game.
+
+## Imported Texture Artifacts Matter
+
+For relic art, the `.png` file is not the whole story.
+
+In real debugging, stale Godot import outputs such as:
+
+- `.godot/imported/<name>.ctex`
+- `.godot/imported/<name>.md5`
+- `images/relics/<name>.png.import`
+
+can cause a relic icon to stay visually old even when the source PNG changed.
+
+Safe rule:
+
+- if you changed a relic image, rebuild or refresh the imported Godot artifacts before repacking the `.pck`
+- when verifying the pack, confirm the current `.ctex` and related import metadata are included alongside the source `.png`
 
 ## Packaging Guidance
 

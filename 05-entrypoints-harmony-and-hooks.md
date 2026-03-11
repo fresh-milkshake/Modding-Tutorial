@@ -222,6 +222,31 @@ For this path, inspect:
 
 The lamali guide demonstrates this path using a custom relic workflow. That is a good public starting pattern, but validate the exact registration path against the current STS2 build before scaling it up.
 
+## Custom Relic Contracts Worth Verifying
+
+For relic mods in the current build, these `RelicModel` contracts are especially important:
+
+- `Title`, `Description`, and `Flavor` default to `base.Id.Entry + ".title|description|flavor"` in the `relics` loc table
+- `IconBaseName` defaults to `Id.Entry.ToLowerInvariant()`
+- `PackedIconPath` and `PackedIconOutlinePath` point at atlas entries based on `IconBaseName`
+- `BigIconPath` points at `res://images/relics/<IconBaseName>.png`
+
+Practical consequence:
+
+- a relic can show the expected small icon while still showing the wrong or missing large inspect art if `IconBaseName` does not match the actual file you packed
+
+There is one more hidden dependency:
+
+- `DynamicDescription` uses `EnergyIconHelper.GetPrefix(this)`
+- for relics, that path calls `RelicModel.Pool`
+- `RelicModel.Pool` expects the relic to belong to at least one `RelicPool`
+
+If your custom relic is start-only or otherwise excluded from normal pool generation, hover or inspect screens can still throw when they try to render `DynamicDescription`.
+
+Safe rule:
+
+- either make the relic discoverable from an appropriate `RelicPool`, or patch the getter path so UI code can still resolve a pool for formatting and inspect screens
+
 ## Practical Entry Strategy For New Mods
 
 For a small STS2 mod, start with:
