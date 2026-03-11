@@ -30,7 +30,9 @@ Before zipping a mod:
 3. confirm the `.pck` contains the current manifest/assets/localization
 4. confirm `pck_name` is aligned with your payload naming
 5. confirm the initializer attribute and method name still match
-6. confirm you are not shipping stale or renamed files from an older build
+6. confirm modded localization files are under `res://<pck_name>/localization/<lang>/...`
+7. confirm you are not shipping stale or renamed files from an older build
+8. confirm any updated relic art includes refreshed Godot import artifacts, not just a new PNG
 
 ## Local Installation
 
@@ -109,6 +111,7 @@ Usually one of:
 
 - stale `.pck`
 - wrong localization file layout
+- correct JSON, but packed outside `res://<pck_name>/localization/<lang>/...`
 - wrong language code
 - wrong keys
 
@@ -127,6 +130,13 @@ Usually one of:
 - initializer ran but patch registration failed
 - patch target signature changed
 - hook chosen was wrong for the actual gameplay event
+
+### Hover or inspect UI breaks for a custom relic
+
+Usually one of:
+
+- the relic is not associated with any `RelicPool`, so `DynamicDescription` throws while resolving energy color formatting
+- the small icon path works, but `BigIconPath` still points at a missing `images/relics/<IconBaseName>.png`
 
 ## Practical Advice For Shipping
 

@@ -18,6 +18,13 @@ Useful log facts already visible in this install:
 
 If your mod does not initialize, the logs are usually the first place to check.
 
+For current local debugging, also check:
+
+- `%APPDATA%\SlayTheSpire2\logs\godot.log`
+- `%APPDATA%\SlayTheSpire2\logs\godot<timestamp>.log`
+
+Those Godot-side logs can contain managed exception traces that never show up in `sts2_stdout.log`.
+
 ## What To Verify First When A Mod Fails To Load
 
 1. does the mod directory contain the expected `.dll` and `.pck`?
@@ -121,6 +128,45 @@ When something breaks, narrow it fast:
 - did the game find the strings?
 
 These are different failures. Do not debug them as one giant problem.
+
+## High-Signal Error Signatures
+
+Some failures are distinctive enough that you should jump straight to the likely cause:
+
+### `Sequence contains no matching element` from `RelicModel.get_Pool()`
+
+Typical implication:
+
+- a custom relic is being rendered in hover or inspect UI
+- `DynamicDescription` went through `EnergyIconHelper`
+- the relic is not present in any `RelicPool`
+
+Likely fix:
+
+- assign or patch a meaningful pool for the relic, even if it is start-only and should not appear in normal rewards
+
+### Strings missing even though the mod loaded
+
+Typical implication:
+
+- the `.dll` initialized correctly
+- the `.pck` exists
+- the localization JSON is packed under the wrong internal path
+
+Likely fix:
+
+- inspect the pack and confirm the file lives at `res://<pck_name>/localization/<lang>/<file>`
+
+### Relic icon did not visually update after changing the PNG
+
+Typical implication:
+
+- the source PNG changed
+- the `.ctex` or related import artifacts in the pack are stale
+
+Likely fix:
+
+- refresh Godot imports and repack the current `.ctex`, `.md5`, and `.png.import` artifacts together with the source image
 
 ## When To Suspect A Version Mismatch
 
