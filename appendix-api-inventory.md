@@ -1,6 +1,6 @@
 # Appendix A. API Inventory
 
-This appendix is a compact inventory of STS2 modding-relevant surfaces verified from the current `sts2.dll`.
+This appendix is a compact inventory of STS2 modding-relevant surfaces verified from the current `sts2.dll`. It is not intended to replace the narrative chapters. Its purpose is to give the reader a quick factual map of the API surface that those chapters refer to.
 
 ## `MegaCrit.Sts2.Core.Modding.ModManifest`
 
@@ -16,6 +16,8 @@ Practical meaning:
 
 - this is the manifest shape the loader understands
 - real mod JSON uses `pck_name` on disk to populate `pckName`
+
+This is a small but useful example of the difference between runtime shape and on-disk JSON naming.
 
 ## `MegaCrit.Sts2.Core.Modding.ModManager`
 
@@ -40,6 +42,8 @@ Interpretation:
 - it can source mods from local directories and Steam Workshop
 - it has a dedicated path for modded localization tables
 
+Taken together, these members describe a loader that already understands the central concepts a modder cares about: discovery, payload loading, initialization, and string merging.
+
 ## `MegaCrit.Sts2.Core.Modding.ModInitializerAttribute`
 
 Observed constructor:
@@ -51,6 +55,8 @@ Interpretation:
 - the attribute is applied to a type
 - the string names the initializer method STS2 should call
 - working local mods consistently use it as a type-level bootstrap marker
+
+That narrow contract is one of the reasons initializer failures are usually diagnosable once the actual loader surface is inspected.
 
 ## `MegaCrit.Sts2.Core.Modding.Mod`
 
@@ -79,6 +85,8 @@ Interpretation:
 
 - there is explicit helper support for merging modded models into pool-style game content
 - if you are adding cards, relics, or similar content, inspect this area before writing invasive patches
+
+For content mods, this is one of the highest-value signals that the game already expects extension in at least some structured form.
 
 ## `MegaCrit.Sts2.Core.Modding.ModSettings`
 
@@ -155,3 +163,5 @@ If you are deciding where to integrate:
 - use Harmony when no hook matches the behavior you need
 - inspect `ModHelper` when you are registering new models or extending pools
 - use `ModManager` and `ModManifest` knowledge to debug load failures before touching gameplay code
+
+The appendix is most useful when it shortens the distance between a concrete question and the chapter that explains the larger pattern around that question.
