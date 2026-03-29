@@ -1,81 +1,55 @@
-# Appendix B. Example Mods
+# Appendix B. Release Package Patterns
 
-All archives from `EXAMPLE_MODS` were unpacked into:
+This appendix summarizes release-payload patterns observed in working STS2 mods without treating any one project as canonical.
+
+## Why This Matters
+
+Observed release archives show:
+
+- more than one top-level zip layout
+- embedded manifests and, sometimes, loose manifests
+- tiny manifest-only `.pck` files and much larger Godot-heavy `.pck` files
+- code-only releases and content-bearing releases
+
+Archive shape and installed shape are not the same concern.
+
+## Common Archive Patterns
+
+### Pattern A: root payload
 
 ```text
-Modding Tutorial/examples/unpacked/
+MyMod.dll
+MyMod.pck
 ```
 
-Per-mod inventories live in:
+### Pattern B: named subfolder
 
 ```text
-Modding Tutorial/examples/inventories/
+MyMod/
+  MyMod.dll
+  MyMod.pck
 ```
 
-## Why These Examples Matter
+### Pattern C: installer-friendly archive
 
-These mods are useful because they show what working STS2 releases actually look like in the wild:
+```text
+mods/
+  MyMod/
+    MyMod.dll
+    MyMod.pck
+    mod_manifest.json
+```
 
-- different archive top-level layouts
-- different `.pck` contents
-- embedded vs loose manifests
-- code-only vs asset-bearing mods
-- localization-bearing vs non-localized mods
+All three can exist as release archives. For the local `v0.99.1` build documented here, the installed layout should still be normalized to root-level files under `mods\`.
 
-## High-Level Comparison
+## Reliable Takeaways
 
-| Mod | Archive layout | Loose manifest | Embedded manifest | Notable observations |
-| --- | --- | --- | --- | --- |
-| BetterSovereignBlade | subfolder | no | yes | includes image import and minimal code stubs in `.pck` |
-| BetterSpire2 | root payload | no | yes | `.pck` built with Godot 4.3.0 |
-| DamageMeter | `mods/DamageMeter/` | yes | yes | richest example; ships localization, source files, settings docs |
-| typing | root payload | no | yes | manifest contains inline comments, likely editor-exported |
-| UndoAndRedo | root payload | no | yes | very small `.pck`, manifest-only |
-| UpgradeAllCards | root payload | no | yes | smallest clean starter example |
+1. STS2 tolerates more than one release-zip layout.
+2. A tiny `.pck` can still be a valid mod payload.
+3. A loose `mod_manifest.json` is optional for payload packaging.
+4. Matching the game's current Godot line is still the safest default for new work.
+5. A `.pck` can contain much more than icons and strings.
 
-## Strongest Lessons From The Example Set
+## Inventory Data
 
-### 1. STS2 tolerates multiple release zip layouts
-
-You should not assume that every mod archive must look the same. The loader-facing payload may still work even if the archive packaging style differs.
-
-### 2. `.pck` size does not tell you whether a mod is "real"
-
-`UpgradeAllCards.pck` and `UndoAndRedo.pck` are tiny and mostly manifest-driven.
-
-`DamageMeter.pck` is large and contains substantial Godot-side content.
-
-Both patterns are valid.
-
-### 3. A loose `mod_manifest.json` is optional in practice
-
-Only `DamageMeter` ships one loose next to the payload. The others rely on an embedded manifest inside the `.pck`.
-
-### 4. Matching the game's Godot version is still the safest default
-
-One example pack was built with Godot 4.3.0 and still exists as a working release, but the current game pack is Godot 4.5.1. For new work, match the current game line unless you have a tested reason not to.
-
-### 5. Real mods may ship more than assets inside `.pck`
-
-`DamageMeter` embeds many source `.cs` files, localization JSON, and project metadata. That is a useful reminder that STS2 mod `.pck` payloads are general Godot content packs, not just icon containers.
-
-## Recommended Examples To Study First
-
-If you are new to STS2 modding, study the examples in this order:
-
-1. `UpgradeAllCards`
-   - smallest clean payload
-   - easiest to reason about
-2. `BetterSpire2`
-   - simple code-focused mod with embedded manifest
-3. `DamageMeter`
-   - full-featured example with localization, UI, settings, and installer-friendly packaging
-
-## Inventory Links
-
-- [BetterSovereignBlade.md](examples/inventories/BetterSovereignBlade.md)
-- [BetterSpire2.md](examples/inventories/BetterSpire2.md)
-- [DamageMeter.md](examples/inventories/DamageMeter.md)
-- [typing.md](examples/inventories/typing.md)
-- [UndoAndRedo.md](examples/inventories/UndoAndRedo.md)
-- [UpgradeAllCards.md](examples/inventories/UpgradeAllCards.md)
+Repo-local unpacked inventories still exist under `examples/` for evidence review, but the tutorial itself should be built from the generalized patterns above, not from any single local project.

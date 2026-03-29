@@ -18,7 +18,8 @@ DamageMeter/
 ## Layout Classification
 
 - archive shape: installer-friendly `mods/<Name>/...`
-- install implication: copy the included `mods\DamageMeter` folder into the game root
+- archive install implication from the bundled README: copy the included `mods\DamageMeter` folder into the game root
+- current local `v0.99.1` note: if that shape is not recognized by the installed-mod UI, normalize the payload into root-level installed files such as `DamageMeter.json`, `DamageMeter.dll`, and `DamageMeter.pck`
 
 ## Loose Manifest
 

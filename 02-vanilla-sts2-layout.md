@@ -1,18 +1,8 @@
-# 02. Vanilla STS2 Layout
-
-## Why This Matters
-
-Many modding guides blur together three separate things:
-
-- the shipped game
-- community conventions
-- local helper tooling
-
-For STS2, you should keep them separate. The game itself is the authoritative source for runtime versions, assembly names, and asset/layout conventions.
+# 02. Game Layout And Loader Surface
 
 ## Verified Game Root Layout
 
-The local install used for this handbook contains:
+The local install used here contains:
 
 ```text
 Slay the Spire 2/
@@ -27,95 +17,70 @@ Slay the Spire 2/
   sts2_stderr.log
 ```
 
-Interpretation:
+Practical meaning:
 
-- `data_sts2_windows_x86_64/` is the managed runtime payload.
-- `SlayTheSpire2.pck` is the main Godot content pack.
-- `mods/` is the obvious local mod install target.
-- `tools/` exists in this install, but in this repository it is **local helper tooling**, not guaranteed vanilla STS2 content.
+- `data_sts2_windows_x86_64/` is the managed runtime payload
+- `SlayTheSpire2.pck` is the main Godot content pack
+- `mods/` is the local install target for mods
+- `tools/` can exist locally, but helper tooling there should not be treated as a vanilla requirement
 
 ## Release Metadata
 
-`release_info.json` currently reports:
+`release_info.json` is the authoritative local version marker. On this machine it reports `v0.99.1` dated `2026-03-13T20:40:28-07:00`.
 
-```json
-{
-  "commit": "f4eeecc6",
-  "version": "v0.98.2",
-  "date": "2026-03-06T15:52:37-08:00",
-  "branch": "v0.98.2"
-}
-```
-
-Use this file whenever you need to annotate a guide with the exact build it was verified against.
+Use it whenever the tutorial makes a version-sensitive claim.
 
 ## Managed Runtime Payload
 
-The `data_sts2_windows_x86_64/` folder contains:
+The most important files under `data_sts2_windows_x86_64/` are:
 
 - `sts2.dll`
 - `0Harmony.dll`
 - `GodotSharp.dll`
-- Steamworks and utility assemblies
-- the .NET runtime assembly set used by the game
 
-This is the directory you should reference when:
+This is the reference directory for decompilation, IDE symbol browsing, and mod compilation.
 
-- decompiling the game
-- resolving symbols in ILSpy or an IDE
-- building a mod against the exact runtime surface the game expects
+## Verified Modding Surface
 
-## What The Logs Confirm
+The current build exposes these key types:
 
-From `sts2_stdout.log` on this machine:
+- `MegaCrit.Sts2.Core.Modding.ModManager`
+- `MegaCrit.Sts2.Core.Modding.ModManifest`
+- `MegaCrit.Sts2.Core.Modding.ModInitializerAttribute`
+- `MegaCrit.Sts2.Core.Modding.ModHelper`
+- `MegaCrit.Sts2.Core.Hooks.Hook`
 
-- engine line: `MegaDot v4.5.1.m.8.mono.custom_build`
-- release line: `release=v0.98.2`
-- locale load examples:
-  - `Loading locale path=res://localization/eng`
-  - `Loading locale path=res://localization/rus`
+Important `ModManager` members:
 
-This confirms three important facts:
+- `Initialize`
+- `LoadModsInDirRecursive`
+- `TryLoadModFromPck`
+- `TryLoadModFromSteam`
+- `CallModInitializer`
+- `GetModdedLocTables`
 
-1. STS2 is running a custom Mono-enabled Godot 4.5.1 build.
-2. the game loads localization from Godot `res://` paths inside the main pack.
-3. logs are useful for validating assumptions that decompiled code alone may not make obvious.
+Practical meaning:
 
-## What The Main `.pck` Confirms
+- STS2 has a built-in managed mod loader
+- `.pck` files are first-class mod payloads
+- initialization is attribute-driven
+- the loader understands both local mods and Steam Workshop mods
 
-Listing `SlayTheSpire2.pck` confirms:
+## Loader State And Consent
 
-- pack version: `3`
-- Godot version: `4.5.1`
-- vanilla localization files live under `localization/<lang>/...`
-- vanilla relic image imports live under `images/relics/*.png.import`
+`ModSettings` and `ModManager` also expose:
 
-Examples seen directly in the main pack:
+- `PlayerAgreedToModLoading`
+- disabled-mod tracking
 
-- `localization/README.md`
-- `localization/eng/relics.json`
-- `localization/eng/cards.json`
-- `localization/eng/characters.json`
-- `localization/eng/static_hover_tips.json`
-- `images/relics/akabeko.png.import`
+So local mod loading is not just file discovery. There is user-facing state around consent and mod enablement.
 
-## Vanilla vs Local Helper Tooling
+## What Logs And The Main Pack Confirm
 
-This repository also contains helper tools under `tools/`, including:
+From runtime logs and `SlayTheSpire2.pck`:
 
-- a PCK inspection tool
-- ILSpy binaries
-- local debug/loose-mod helpers
+- the game runs on a custom Mono-enabled Godot 4.5.1 line
+- vanilla localization lives under `localization/<lang>/...`
+- relic art uses Godot-imported resources such as `images/relics/*.png.import`
 
-These are useful for research and development inside this repo, but you should not document them as if Mega Crit ships them to every player by default.
-
-## Practical Takeaway
-
-When in doubt:
-
-1. check `release_info.json`
-2. inspect `sts2.dll`
-3. inspect `SlayTheSpire2.pck`
-4. confirm with runtime logs
-
-That order is more reliable than copying a tutorial verbatim.
+When documentation and behavior disagree, trust the live install first.

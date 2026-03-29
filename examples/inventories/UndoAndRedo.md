@@ -13,7 +13,7 @@ UndoAndRedo/
 ## Layout Classification
 
 - archive shape: root payload
-- install implication: place these files inside a mod folder under `mods\`
+- current local install implication for `v0.99.1`: normalize this archive into root-level installed files under `mods\`
 
 ## Embedded Manifest
 

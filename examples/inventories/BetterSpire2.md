@@ -13,7 +13,7 @@ BetterSpire2/
 ## Layout Classification
 
 - archive shape: root payload
-- install implication: place these files inside a mod folder under `mods\`
+- current local install implication for `v0.99.1`: normalize this archive into root-level installed files under `mods\`, not just a folder payload
 
 ## Embedded Manifest
 
@@ -39,4 +39,4 @@ BetterSpire2/
 
 - STS2 can encounter real-world mods packaged from an older Godot minor line
 - simple code-focused mods may use a very light `.pck` containing little more than manifest and project/icon metadata
-- root-level archive payloads are common, so user install instructions often need to normalize them into a `mods\MyMod\` folder
+- root-level archive payloads are common, but on the current local build you should normalize them into root-level installed files under `mods\`

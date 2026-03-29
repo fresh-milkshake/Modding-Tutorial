@@ -1,30 +1,68 @@
-# 03. Mod Loading And Manifests
+# 03. Project Skeleton, Build, And Manifests
 
-## Verified Modding Surface In `sts2.dll`
+## Recommended Project Shape
 
-The following types and members are present in the current game build:
+For a small STS2 mod, start with:
 
-- `MegaCrit.Sts2.Core.Modding.ModManifest`
-- `MegaCrit.Sts2.Core.Modding.ModManager`
-- `MegaCrit.Sts2.Core.Modding.ModInitializerAttribute`
-- `MegaCrit.Sts2.Core.Modding.Mod`
-- `MegaCrit.Sts2.Core.Modding.ModSettings`
-- `MegaCrit.Sts2.Core.Modding.ModSource`
+```text
+MyMod/
+  MyMod.csproj
+  ModEntry.cs
+  Patches/
+  godot/
+    mod_manifest.json
+  build.ps1
+  build/
+    mods/
+      MyMod/
+```
 
-Important `ModManager` members:
+The stable local staging pattern is `build/mods/<ModId>/`.
 
-- `Initialize`
-- `LoadModsInDirRecursive`
-- `TryLoadModFromPck`
-- `TryLoadModFromSteam`
-- `CallModInitializer`
-- `GetModdedLocTables`
+## Minimal `.csproj`
 
-That is enough to establish that STS2 has a built-in managed mod loader, supports recursive directory loading, and distinguishes between local mods and Steam Workshop mods.
+Use the current game assemblies directly:
 
-## What A Manifest Looks Like
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GameDir Condition="'$(GameDir)' == '' and Exists('C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll')">C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2</GameDir>
+    <Sts2DataDir Condition="'$(Sts2DataDir)' == '' and '$(GameDir)' != ''">$(GameDir)\data_sts2_windows_x86_64</Sts2DataDir>
+  </PropertyGroup>
 
-`ModManifest` contains these fields in the current build:
+  <Target Name="ValidateGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(Sts2DataDir)' == '' or !Exists('$(Sts2DataDir)\sts2.dll')"
+           Text="Set GameDir or Sts2DataDir to your Slay the Spire 2 install before building." />
+  </Target>
+
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>$(Sts2DataDir)\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(Sts2DataDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GodotSharp">
+      <HintPath>$(Sts2DataDir)\GodotSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
+```
+
+## Two Manifest Layers
+
+On the current local build, treat these as separate files with separate roles.
+
+### Payload manifest: `godot/mod_manifest.json`
+
+This is the STS2 payload contract. `ModManifest` currently maps these fields:
 
 - `author`
 - `description`
@@ -32,136 +70,59 @@ That is enough to establish that STS2 has a built-in managed mod loader, support
 - `pckName`
 - `version`
 
-Real example mods encode that data in JSON using keys such as:
+On disk, the JSON key is `pck_name`.
+
+Use it inside the `.pck`, in staging, or both. Do not copy loose `mod_manifest.json` files into the root `mods\` directory for installed mods.
+
+### Installed-mod record: `<ModId>.json`
+
+On this machine, the installed-mod UI was most reliable with root-level metadata shaped like:
 
 ```json
 {
-  "pck_name": "UpgradeAllCards",
-  "name": "Upgrade All Cards",
-  "author": "JiesiLuo",
-  "description": "Automatically upgrades all starting cards and any new cards added to your deck during a run.",
-  "version": "1.0.0"
+  "id": "MyMod",
+  "name": "My Mod",
+  "author": "Author",
+  "description": "Short description.",
+  "version": "v0.1.0",
+  "has_pck": true,
+  "has_dll": true,
+  "dependencies": [],
+  "affects_gameplay": true
 }
 ```
 
-## What Usually Ships In A Mod
+Keep `id`, payload basenames, and `pck_name` aligned unless you have a verified reason not to.
 
-Across the six example archives, the stable pattern is:
+## Build And Staging Flow
 
-- a compiled `.dll`
-- a `.pck`
-- a `mod_manifest.json` either inside the `.pck`, outside it, or both
+The common local flow is:
 
-Optional extras seen in the wild:
+1. build the `.dll`
+2. copy the `.dll` and `godot/mod_manifest.json` into `build/mods/<ModId>/`
+3. pack the Godot-side payload into `<ModId>.pck`
+4. write `<ModId>.json`
+5. optionally copy the final root-level files into the game `mods\` directory
 
-- `README.txt`
-- `CHANGELOG.txt`
+Useful local helper tools such as `godotpcktool.exe` can speed this up, but they are optional helpers, not a vanilla STS2 requirement.
 
-## Packaging Patterns Observed In Real Mods
+## Current Installed Layout Recommendation
 
-The example archives show at least three install layouts:
-
-| Pattern | Example | Notes |
-| --- | --- | --- |
-| root-level `.dll + .pck` | `UpgradeAllCards`, `UndoAndRedo`, `typing`, `BetterSpire2` | simplest package shape |
-| named subfolder containing payload | `BetterSovereignBlade` | archive extracts into a mod-named folder |
-| `mods/<ModName>/...` already included | `DamageMeter` | installer-friendly archive; can often be copied directly into the game root |
-
-This matters because community guides often imply one canonical layout. STS2 clearly tolerates more than one archive packaging style.
-
-## Where The Manifest Can Live
-
-Observed patterns:
-
-- **inside `.pck` only:** `UpgradeAllCards`, `UndoAndRedo`, `BetterSpire2`, `typing`, `BetterSovereignBlade`
-- **inside `.pck` and also loose next to payload:** `DamageMeter`
-
-Do not assume a loose `mod_manifest.json` is mandatory just because one working mod includes it.
-
-## Practical Meaning Of `pck_name`
-
-The manifest field `pck_name` is not cosmetic. Treat it as an identity field tied to the mod payload name.
-
-Safe rule:
-
-- keep `pck_name`, the payload basename, and the logical mod name aligned unless you have a verified reason not to
-
-Examples:
-
-- `UpgradeAllCards.pck` uses `pck_name: "UpgradeAllCards"`
-- `DamageMeter.pck` uses `pck_name: "DamageMeter"`
-
-## Local Mods vs Workshop Mods
-
-`ModSource` currently contains:
-
-- `None`
-- `ModsDirectory`
-- `SteamWorkshop`
-
-That proves the loader understands at least two sources:
-
-- local folder mods under the game install
-- Workshop-provided mods
-
-This handbook focuses on local development and installation, but you should be aware that the loader itself already models Steam Workshop as a first-class source.
-
-## There Is A Consent Gate
-
-`ModManager` and `ModSettings` expose:
-
-- `PlayerAgreedToModLoading`
-- disabled mod tracking
-
-This means STS2's loader is not just "drop files and hope"; there is user-facing state around mod loading and mod disablement.
-
-## What To Put In Your Release Zip
-
-For a straightforward local mod release, ship one of these:
-
-### Option A: root payload
+For the local `v0.99.1` build used here, the safest installed shape is:
 
 ```text
-MyMod.dll
-MyMod.pck
-```
-
-### Option B: folder payload
-
-```text
-MyMod/
+<STS2>\mods\
+  MyMod.json
   MyMod.dll
   MyMod.pck
 ```
 
-### Option C: installer-friendly root-ready package
+For code-only mods:
 
 ```text
-mods/
-  MyMod/
-    MyMod.dll
-    MyMod.pck
-    mod_manifest.json
+<STS2>\mods\
+  MyMod.json
+  MyMod.dll
 ```
 
-`DamageMeter` is the cleanest real example of option C.
-
-## Recommended Default
-
-For a new mod, the lowest-friction release shape is:
-
-```text
-mods/
-  MyMod/
-    MyMod.dll
-    MyMod.pck
-    mod_manifest.json
-```
-
-Why this is the safest recommendation:
-
-- it matches a working real-world example
-- it avoids ambiguity about where the files belong
-- it makes installation instructions trivial for users
-
-It is still a recommendation, not the only working layout STS2 can load.
+Archive shape can vary. Installed shape should be normalized.

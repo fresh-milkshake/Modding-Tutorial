@@ -1,212 +1,99 @@
-# 06. Assets, PCK, And Localization
+# 06. Content Mods, Assets, PCK, And Localization
+
+## Start With Model Registration
+
+When you are adding new cards, relics, powers, or other discoverable content, inspect the model-registration path before writing invasive patches.
+
+Useful entry points:
+
+- `ModHelper.AddModelToPool`
+- related pool classes
+- model database lookup paths
+
+If registration already has a supported path, prefer that over patching random generation code.
+
+## Content-Mod Checklist
+
+Before you ship a new model, verify:
+
+1. it is discoverable from the right pool or lookup path
+2. its localization keys match the table the game actually reads
+3. its icon names and paths match the files you packed
+4. unlock-state exposure and catalog visibility are handled
+5. inspect and hover UI can resolve any metadata they need
+
+## Custom Relic Contracts Worth Verifying
+
+For relics in the current build:
+
+- `Title`, `Description`, and `Flavor` default to keys derived from `Id.Entry`
+- `IconBaseName` defaults to `Id.Entry.ToLowerInvariant()`
+- `BigIconPath` points at `res://images/relics/<IconBaseName>.png`
+- `DynamicDescription` can depend on `RelicModel.Pool`
+
+Practical consequence:
+
+- a relic can render a small icon but still break large-art or inspect flows if `IconBaseName` and packed files do not match
+- a start-only or special-case relic can still need a meaningful pool association for hover and inspect code paths
+
+## Unlock Visibility And Catalog Visibility
+
+Do not assume one integration point covers both:
+
+- making content exist in the game
+- making content visible in unlock state or compendium-style UI
+
+In practice, content mods may need separate handling for:
+
+- pool membership
+- unlock-state getters
+- catalog-entry visibility
 
 ## What The Vanilla Pack Confirms
 
-`SlayTheSpire2.pck` directly confirms these vanilla content conventions:
+`SlayTheSpire2.pck` confirms:
 
-- localization lives under `localization/<lang>/...`
-- the pack includes `localization/README.md`
-- English source tables include files such as:
-  - `localization/eng/cards.json`
-  - `localization/eng/characters.json`
-  - `localization/eng/relics.json`
-  - `localization/eng/static_hover_tips.json`
-- relic assets use `images/relics/*.png.import`
+- vanilla localization lives under `localization/<lang>/...`
+- relic art uses Godot-imported resources such as `images/relics/*.png.import`
+- vanilla string tables include files such as `cards.json`, `characters.json`, `relics.json`, and `static_hover_tips.json`
 
-Example:
+Vanilla language codes include `eng`, `rus`, `zhs`, and others documented in `localization/README.md`.
 
-- `images/relics/akabeko.png.import`
+## Modded Localization Path
 
-The imported file metadata confirms these are ordinary Godot-imported resources.
+For the current build, `GetModdedLocTables(language, file)` looks for:
 
-## Language Codes
-
-The vanilla `localization/README.md` explicitly describes the language folders using short codes such as:
-
-- `eng`
-- `deu`
-- `esp`
-- `ita`
-- `jpn`
-- `kor`
-- `pol`
-- `ptb`
-- `rus`
-- `tha`
-- `tur`
-- `zhs`
-
-That README also confirms the base game expects JSON files with string keys and string values.
-
-## Asset Naming
-
-Vanilla relic asset names are snake_case:
-
-- `akabeko`
-- `art_of_war`
-- `bag_of_marbles`
-- `burning_blood`
-
-That aligns with the lamali guide's recommendation to use snake_case filenames for relic images.
+```text
+res://<pck_name>/localization/<language>/<file>
+```
 
 Safe rule:
 
-- if your content maps to a model name, assume the asset filename should be snake_case unless your verified implementation says otherwise
+- keep vanilla table names such as `relics.json`
+- pack them under `res://<pck_name>/localization/<lang>/...`
+- do not assume a flat `res://localization/...` layout will be merged for mods just because vanilla uses it
 
-## What Goes Inside A Mod `.pck`
+## What Can Live In A Mod `.pck`
 
-Real example packs show that mod `.pck` files may contain:
+A mod `.pck` can contain:
 
 - `mod_manifest.json`
+- localization JSON
+- icon assets
+- Godot import metadata
 - `project.binary`
-- `.godot/` caches
-- imported textures
-- icon files
-- source `.cs` files
-- custom localization JSON
+- other Godot-side resources
 
-Examples:
+It is a general Godot payload container, not just an asset folder.
 
-- `UpgradeAllCards.pck` only contains `mod_manifest.json`
-- `BetterSpire2.pck` contains `mod_manifest.json`, icon assets, and `project.binary`
-- `DamageMeter.pck` contains source files, localization files, icon assets, `.godot` metadata, and `project.binary`
+## PCK Tooling
 
-This means `.pck` is not "assets only" in practice. It is a general Godot-side payload container.
+To inspect or build packs, you need a Godot-compatible PCK tool.
 
-## Localization: One Important Caveat
-
-The lamali guide presents a Godot-side layout that mirrors vanilla localization folders. That is a sensible and well-explained convention.
-
-However, the real example mods show more than one working pattern.
-
-Observed in `DamageMeter.pck`:
-
-- `DamageMeter.localization.en.json`
-- `DamageMeter.localization.zhs.json`
-
-Observed in vanilla STS2:
-
-- `localization/eng/relics.json`
-- many other `localization/<lang>/*.json` files
-
-However, the current loader implementation is stricter than that high-level observation might suggest.
-
-Verified in the current build:
-
-- `ModManager.GetModdedLocTables(language, file)` looks for `res://<pck_name>/localization/<language>/<file>`
-- that means a modded `relics.json` intended to merge into the base `relics` table should be packed under a folder named after the manifest `pck_name`
-- example: if `pck_name` is `VenomousDeity`, the working path is `res://VenomousDeity/localization/eng/relics.json`
-
-Therefore, do **not** document a single universal mod localization layout unless you have verified it against the current loader implementation, and do not assume that a flat `res://localization/...` mod path will be merged just because vanilla uses it.
-
-Safe statement:
-
-- STS2 can gather modded localization tables
-- the vanilla game uses `localization/<lang>/...`
-- the current modded merge path is `res://<pck_name>/localization/<lang>/<file>`
-- community and real-world mods may still include other localization JSON layouts for their own internal systems or UI
-
-## Recommended Practical Localization Strategy
-
-For a new mod, the safest documented path is:
-
-1. keep your base table names aligned with vanilla, for example `relics.json`
-2. pack them under `res://<pck_name>/localization/<lang>/...`
-3. validate your exact layout against a current game build before you scale it up
-4. compare against a known working mod if your strings do not load
-
-If you are debugging localization problems, compare all three sources:
-
-- your mod pack contents
-- `GetModdedLocTables`-related game behavior
-- a working mod such as `DamageMeter`
-
-## BBCode And Rich Text
-
-The vanilla localization README documents BBCode-style formatting such as:
-
-- `[b]...[/b]`
-- `[i]...[/i]`
-- `[color=X]...[/color]`
-- `[gold]...[/gold]`
-- `[purple]...[/purple]`
-- `[jitter]...[/jitter]`
-- `[sine]...[/sine]`
-
-That matters because STS2 text is not plain string substitution. If you add custom strings, preserve the game's formatting conventions.
-
-## `.pck` Tooling
-
-To inspect or build packs you need a Godot-compatible PCK tool.
-
-In this repo, the local helper tool is:
-
-```text
-tools/bin/godotpcktool.exe
-```
-
-It supports:
-
-- `list`
-- `extract`
-- `add`
-- `repack`
-
-Important: this tool is convenient in this repo, but it is not part of vanilla STS2 by default.
-
-## Packing Example With The Repo-Local Tool
-
-If you use the repo-local helper packer, the command shape is:
-
-```powershell
-godotpcktool.exe `
-  --pack MyMod.pck `
-  --action add `
-  --set-godot-version 4.5.1 `
-  --remove-prefix "D:\path\to\godot-export-root\" `
-  --file "D:\path\to\godot-export-root\mod_manifest.json" `
-  --file "D:\path\to\godot-export-root\project.binary" `
-  --file "D:\path\to\godot-export-root\images\..." `
-  --file "D:\path\to\godot-export-root\MyMod\localization\eng\relics.json"
-```
-
-Interpretation:
-
-- `--pack` chooses the target `.pck`
-- `--action add` creates or appends content
-- `--set-godot-version 4.5.1` matches the current game baseline
-- `--remove-prefix` strips your local export root so the paths inside the pack are relative
-
-Always inspect the resulting pack after building it. A `.pck` that exists is not automatically a `.pck` with the right internal paths.
-
-For localization specifically, inspect the internal pack path, not just the filename on disk. A modded `relics.json` in the wrong folder can exist in the `.pck` and still never be merged by the game.
+Repo-local helpers such as `godotpcktool.exe` are useful, but they are optional. The key rule is not the tool choice; it is verifying the internal pack paths after packing.
 
 ## Imported Texture Artifacts Matter
 
-For relic art, the `.png` file is not the whole story.
+For image changes, the source `.png` is not the whole story. Stale Godot import outputs can leave old visuals in place.
 
-In real debugging, stale Godot import outputs such as:
-
-- `.godot/imported/<name>.ctex`
-- `.godot/imported/<name>.md5`
-- `images/relics/<name>.png.import`
-
-can cause a relic icon to stay visually old even when the source PNG changed.
-
-Safe rule:
-
-- if you changed a relic image, rebuild or refresh the imported Godot artifacts before repacking the `.pck`
-- when verifying the pack, confirm the current `.ctex` and related import metadata are included alongside the source `.png`
-
-## Packaging Guidance
-
-Keep your mod `.pck` focused on Godot-side content:
-
-- manifest
-- assets
-- localization
-- optional Godot project metadata
-
-Keep your gameplay logic in the compiled `.dll`.
-
-Some real mods also ship source `.cs` files inside the `.pck`. STS2 can load such mods, but that is not required and is usually not necessary for release.
+When you update art, verify the current pack includes the refreshed import artifacts together with the source image.

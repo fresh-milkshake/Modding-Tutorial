@@ -46,16 +46,11 @@ Observed constructor:
 
 - `.ctor(string initializerMethod)`
 
-Observed real usages in example mods:
-
-- `UpgradeAllCards.UpgradeAllCardsMod => ModInitializer("Initialize")`
-- `BetterSpire2.ModEntry => ModInitializer("Init")`
-- `DamageMeter.MainFile => ModInitializer("Initialize")`
-
 Interpretation:
 
 - the attribute is applied to a type
 - the string names the initializer method STS2 should call
+- working local mods consistently use it as a type-level bootstrap marker
 
 ## `MegaCrit.Sts2.Core.Modding.Mod`
 

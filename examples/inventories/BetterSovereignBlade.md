@@ -14,7 +14,8 @@ BetterSovereignBlade/
 ## Layout Classification
 
 - archive shape: subfolder payload
-- install implication: extract the included `BetterSovereignBlade` folder into `mods\`
+- archive install implication: extract the included `BetterSovereignBlade` folder
+- current local install implication for `v0.99.1`: normalize the final installed payload into root-level files under `mods\` if the folder-only shape is not recognized
 
 ## Embedded Manifest
 

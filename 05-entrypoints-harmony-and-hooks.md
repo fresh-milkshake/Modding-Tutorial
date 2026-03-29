@@ -1,16 +1,8 @@
-# 05. Entrypoints, Harmony, And Hooks
+# 05. Behavior Mods, Harmony, And Hooks
 
-## The Core STS2 Entry Mechanism
+## Core Entry Mechanism
 
-The current build contains `MegaCrit.Sts2.Core.Modding.ModInitializerAttribute` with a constructor that takes a string initializer method name.
-
-Real example mods use it like this at the **type** level:
-
-- `UpgradeAllCards.UpgradeAllCardsMod => ModInitializer(Initialize)`
-- `BetterSpire2.ModEntry => ModInitializer(Init)`
-- `DamageMeter.MainFile => ModInitializer(Initialize)`
-
-That means the default STS2-native entry pattern is:
+The current build exposes `ModInitializerAttribute` with a string method name. The standard STS2 entry pattern is type-level:
 
 ```csharp
 using HarmonyLib;
@@ -22,238 +14,86 @@ public static class ModEntry
     public static void Initialize()
     {
         var harmony = new Harmony("com.example.mymod");
-        harmony.PatchAll();
+        harmony.PatchAll(typeof(ModEntry).Assembly);
     }
 }
 ```
-
-This pattern is consistent with both working example mods and the lamali guide.
-
-## Why The Attribute Is On The Type
-
-`CallModInitializer` in `ModManager` strongly suggests STS2 scans mod assemblies for attributed types and then invokes the named method. That is why the string method name matters.
 
 Practical implications:
 
-- the method name in the attribute must exist
-- the method must be callable at mod startup
-- a typo here is enough to make your mod appear packaged correctly but fail to initialize
+- the attribute belongs on a type
+- the named method must exist
+- a typo can leave a correctly packaged mod unloaded at runtime
 
-## Harmony Is The Default Escape Hatch
+## Use Hooks First
 
-Use Harmony when:
+The built-in hook surface under `MegaCrit.Sts2.Core.Hooks.Hook` covers:
 
-- STS2 does not expose a hook for what you need
-- you need to alter a very specific method body or return value
-- you are changing behavior inside an existing code path rather than registering new content
+- combat lifecycle
+- turn flow
+- damage and block
+- cards and piles
+- rewards, merchants, and economy
+- rooms, map flow, and acts
+- potions, powers, and healing
+- death prevention and combat-ending checks
 
-Starter skeleton:
-
-```csharp
-using HarmonyLib;
-
-[HarmonyPatch(typeof(SomeType), nameof(SomeType.SomeMethod))]
-public static class SomeMethodPatch
-{
-    public static void Prefix()
-    {
-    }
-
-    public static void Postfix()
-    {
-    }
-}
-```
-
-## Prefer Hooks When A Hook Already Describes The Event
-
-The current build contains a large built-in hook surface under:
-
-```text
-MegaCrit.Sts2.Core.Hooks.Hook
-```
-
-If an STS2 hook already matches your desired gameplay event, prefer it over a brittle Harmony patch.
+If the game already names the event you need, prefer the hook over a Harmony patch.
 
 Why:
 
-- hooks are semantically named
-- hooks tend to survive internal refactors better than patching arbitrary implementation methods
-- hooks communicate intent better when other modders read your code
+- hooks express intent directly
+- hooks tend to survive internal refactors better
+- hooks reduce the amount of method-body interception you own
 
-## Verified Hook Categories
+## Use Harmony When Needed
 
-The hook surface in the current build covers all of these areas:
+Use Harmony when:
 
-### Combat lifecycle
+- there is no built-in hook for the behavior
+- you need a precise method interception
+- you are changing implementation details rather than registering content
 
-- `BeforeCombatStart`
-- `AfterCombatEnd`
-- `AfterCombatVictory`
-- `ShouldStopCombatFromEnding`
+Read the exact signature before patching. STS2 uses `Task`, `bool`, and modifier-return patterns across both hooks and ordinary methods.
 
-### Turn flow
+## Safe Hook Selection Matters
 
-- `AfterPlayerTurnStart`
-- `AfterSideTurnStart`
-- `BeforeTurnEnd`
-- `AfterTurnEnd`
-- `ShouldTakeExtraTurn`
-- `AfterTakingExtraTurn`
+For card behavior, not every patch point that "works" is equally safe.
 
-### Damage and block
+Prefer `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)` when your effect is conceptually:
 
-- `BeforeAttack`
-- `AfterAttack`
-- `ModifyDamage`
-- `ModifyDamageInternal`
-- `AfterDamageGiven`
-- `AfterDamageReceived`
-- `ModifyBlock`
-- `BeforeBlockGained`
-- `AfterBlockGained`
-- `ShouldClearBlock`
+- after full card resolution
+- after discard or result-pile movement
+- after the game's own animation and cleanup work
 
-### Cards and piles
+Be careful when intercepting or replacing concrete `OnPlay(...)` task chains. That can break:
 
-- `BeforeCardPlayed`
-- `AfterCardPlayed`
-- `BeforeCardAutoPlayed`
-- `AfterCardDrawn`
-- `AfterCardDiscarded`
-- `AfterCardExhausted`
-- `AfterCardChangedPiles`
-- `ModifyCardPlayCount`
-- `ModifyCardRewardOptions`
+- discard/result-pile movement
+- animation cleanup
+- card UI state
 
-### Rewards, merchants, economy
+## Description Patch Warning
 
-- `BeforeRewardsOffered`
-- `AfterRewardTaken`
-- `ModifyRewards`
-- `ModifyMerchantPrice`
-- `ModifyMerchantCardPool`
-- `ShouldGainGold`
-- `AfterGoldGained`
-- `ShouldGainStars`
-- `AfterStarsGained`
-
-### Rooms, maps, acts
-
-- `BeforeRoomEntered`
-- `AfterRoomEntered`
-- `AfterActEntered`
-- `AfterMapGenerated`
-- `ModifyGeneratedMap`
-- `ModifyNextEvent`
-
-### Potions, powers, healing
-
-- `BeforePotionUsed`
-- `AfterPotionUsed`
-- `AfterPotionProcured`
-- `ModifyPowerAmountGiven`
-- `ModifyPowerAmountReceived`
-- `ModifyHealAmount`
-- `ModifyRestSiteHealAmount`
-
-### Death prevention and terminal checks
-
-- `BeforeDeath`
-- `AfterDeath`
-- `ShouldDie`
-- `AfterPreventingDeath`
-
-## Hook Return Shapes Matter
-
-The current API uses several different hook styles:
-
-- `Task` for asynchronous or post-event flows
-- `bool` for allow/deny decisions
-- modifier-style methods for value transformation
-
-Do not assume every hook is fire-and-forget. Read the exact signature before implementing one.
-
-## Harmony vs Hook Decision Rule
-
-Use this rule:
-
-- if the game already names the event you care about in `Hook`, start there
-- if you need a precise implementation interception that has no hook, use Harmony
-- if you are adding new models or content pools, inspect `ModHelper` and related pool code before you patch anything
-
-## Two Common STS2 Mod Shapes
-
-### Behavior mod
-
-Use this when you are changing existing game behavior without adding brand-new content.
-
-Typical structure:
-
-1. `[ModInitializer]` entry class
-2. Harmony setup
-3. a few focused patches
-4. optional logging
-
-Examples from the archive set:
-
-- `UpgradeAllCards`
-- `UndoAndRedo`
-- `BetterSpire2`
-
-### Content mod
-
-Use this when you are adding new game content such as relic-like or card-like data that must become discoverable by STS2 systems.
-
-Typical structure:
-
-1. `[ModInitializer]` entry class
-2. content model classes
-3. registration or pool-extension logic
-4. assets and localization in the `.pck`
-5. optional Harmony patches only where registration alone is insufficient
-
-For this path, inspect:
-
-- the relevant vanilla model class
-- the relevant pool generation code
-- `ModHelper.AddModelToPool`
-- any existing hook surface that can avoid a brittle patch
-
-The lamali guide demonstrates this path using a custom relic workflow. That is a good public starting pattern, but validate the exact registration path against the current STS2 build before scaling it up.
-
-## Custom Relic Contracts Worth Verifying
-
-For relic mods in the current build, these `RelicModel` contracts are especially important:
-
-- `Title`, `Description`, and `Flavor` default to `base.Id.Entry + ".title|description|flavor"` in the `relics` loc table
-- `IconBaseName` defaults to `Id.Entry.ToLowerInvariant()`
-- `PackedIconPath` and `PackedIconOutlinePath` point at atlas entries based on `IconBaseName`
-- `BigIconPath` points at `res://images/relics/<IconBaseName>.png`
-
-Practical consequence:
-
-- a relic can show the expected small icon while still showing the wrong or missing large inspect art if `IconBaseName` does not match the actual file you packed
-
-There is one more hidden dependency:
-
-- `DynamicDescription` uses `EnergyIconHelper.GetPrefix(this)`
-- for relics, that path calls `RelicModel.Pool`
-- `RelicModel.Pool` expects the relic to belong to at least one `RelicPool`
-
-If your custom relic is start-only or otherwise excluded from normal pool generation, hover or inspect screens can still throw when they try to render `DynamicDescription`.
+`CardModel.GetDescriptionForPile` has multiple overloads in the current local assembly.
 
 Safe rule:
 
-- either make the relic discoverable from an appropriate `RelicPool`, or patch the getter path so UI code can still resolve a pool for formatting and inspect screens
+- patch the deepest overload you actually need
+- do not blindly patch all matching names
 
-## Practical Entry Strategy For New Mods
+Otherwise it is easy to append the same custom text twice.
 
-For a small STS2 mod, start with:
+## Practical Decision Rule
 
-1. one `[ModInitializer]` entry class
+Use this order:
+
+1. built-in hook if the game already names the event
+2. `ModHelper` or registration path if the job is content
+3. Harmony only when neither of the above covers the requirement
+
+Start small:
+
+1. one `[ModInitializer]` entry point
 2. one Harmony instance with a stable unique ID
-3. a small number of focused patch classes
-4. hooks where the semantic event already exists
-
-Avoid beginning with a large patch-all architecture before you know which integration points are stable.
+3. a small number of focused patches
+4. explicit logging around initialization and patch registration
