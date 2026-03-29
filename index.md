@@ -1,6 +1,6 @@
 # Slay the Spire 2 Modding Handbook
 
-This is the repo-local table of contents for the tutorial. The public landing page is [README.md](README.md).
+This is the repo-local table of contents for the tutorial. The public landing page is [README.md](README.md), while this file frames how the handbook is organized and which kinds of facts it treats as authoritative.
 
 ## Scope
 
@@ -15,12 +15,16 @@ The handbook is limited to STS2-specific facts:
 
 It does not try to teach C#, Godot, or Harmony from zero.
 
+That boundary is deliberate. STS2 modding becomes much easier to reason about once the tutorial is allowed to focus on the game's own contracts instead of pausing to reteach general-purpose tooling at every step.
+
 ## Source Hierarchy
 
 - **Vanilla install facts:** `release_info.json`, `sts2.dll`, `SlayTheSpire2.pck`, and game logs.
 - **Observed mod patterns:** local working mods and unpacked release payloads.
 - **Community cross-check:** [lamali292's guide](https://lamali292.github.io/sts2_modding_guide/).
 - **Repo-local tooling:** useful helpers under `tools/`, but not part of vanilla STS2.
+
+This source hierarchy matters because the different sources answer different questions. The installed game defines what is true now. Observed payloads show what working releases look like in practice. Community guides are useful for orientation, but they are not authoritative when the live build says otherwise. Repo-local tooling is helpful, but should not be confused with the game's public contract.
 
 ## Reading Order
 
@@ -44,6 +48,8 @@ If you already know Harmony and Godot:
 4. read [06-assets-pck-and-localization.md](06-assets-pck-and-localization.md)
 5. use [09-packaging-installing-and-verifying.md](09-packaging-installing-and-verifying.md) as the shipping checklist
 
+That path works because it follows the most common failure chain in STS2 modding: baseline assumptions, then manifests and install shape, then integration points, then content layout, then release validation.
+
 ## Baseline Used Here
 
 - STS2 release version: `v0.99.1`
@@ -59,3 +65,5 @@ Version-sensitive note:
 - folder-only installed payloads were not the safest recommendation for this local `v0.99.1` build
 
 Re-check anything version-sensitive after a game update.
+
+This handbook should therefore be read as a precise description of a verified local build, not as a timeless abstraction.
