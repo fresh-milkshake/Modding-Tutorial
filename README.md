@@ -1,6 +1,6 @@
 # Slay the Spire 2 Modding Tutorial
 
-Concise, version-aware notes for building local C# mods for **Slay the Spire 2 Early Access**.
+Concise, version-aware notes for building <u>local-only</u> C# mods for **Slay the Spire 2 Early Access**.
 
 ## Covers
 
@@ -39,9 +39,6 @@ Reference material:
 - [appendix-example-mods.md](appendix-example-mods.md)
 - [references.md](references.md)
 
-## Does Not Cover
+## License
 
-- C# from first principles
-- Godot from first principles
-- Harmony basics beyond STS2-specific usage
-- workshop publishing, CI, or release automation beyond local packaging facts
+This project is licensed under the [MIT license](LICENSE).
