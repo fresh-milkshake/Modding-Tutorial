@@ -25,6 +25,8 @@ Practical implications:
 - the named method must exist
 - a typo can leave a correctly packaged mod unloaded at runtime
 
+This entry model is important because it shows that STS2 does not expect a special assembly name or a convention-based top-level bootstrap class. Instead, it expects a type marked as an initializer owner, and it expects that type to expose a callable method whose name matches the attribute argument. That is a narrow but clear contract, and it is one of the simplest places to diagnose packaging failures that otherwise look mysterious.
+
 ## Use Hooks First
 
 The built-in hook surface under `MegaCrit.Sts2.Core.Hooks.Hook` covers:
@@ -46,6 +48,8 @@ Why:
 - hooks tend to survive internal refactors better
 - hooks reduce the amount of method-body interception you own
 
+Hooks are valuable not only because they are convenient, but because they encode the game's own understanding of its event boundaries. If STS2 already distinguishes `AfterCombatEnd` from `AfterCombatVictory`, or `AfterCardPlayed` from a later post-resolution path, that distinction is information. Using the hook preserves the game's semantics instead of forcing the mod to infer them from lower-level implementation details.
+
 ## Use Harmony When Needed
 
 Use Harmony when:
@@ -54,7 +58,7 @@ Use Harmony when:
 - you need a precise method interception
 - you are changing implementation details rather than registering content
 
-Read the exact signature before patching. STS2 uses `Task`, `bool`, and modifier-return patterns across both hooks and ordinary methods.
+Read the exact signature before patching. STS2 uses `Task`, `bool`, and modifier-return patterns across both hooks and ordinary methods. A patch that ignores whether a method is part of an async chain, a veto path, or a value-transform path can appear correct at compile time while still breaking runtime ownership and sequencing.
 
 ## Safe Hook Selection Matters
 
@@ -72,6 +76,8 @@ Be careful when intercepting or replacing concrete `OnPlay(...)` task chains. Th
 - animation cleanup
 - card UI state
 
+This is one of the places where STS2 rewards patience. A patch placed too early in the play lifecycle may still produce the visible gameplay effect you wanted, which makes it tempting to declare success. The real regression often appears later, when a card remains on screen too long, moves to the wrong pile, or leaves UI state behind. In other words, "the effect fired" is not the same as "the integration point was correct."
+
 ## Description Patch Warning
 
 `CardModel.GetDescriptionForPile` has multiple overloads in the current local assembly.
@@ -81,7 +87,7 @@ Safe rule:
 - patch the deepest overload you actually need
 - do not blindly patch all matching names
 
-Otherwise it is easy to append the same custom text twice.
+Otherwise it is easy to append the same custom text twice, especially if one overload delegates into another. Text rendering paths often look simpler than they are because the visible output is short while the call chain is layered.
 
 ## Practical Decision Rule
 
@@ -97,3 +103,5 @@ Start small:
 2. one Harmony instance with a stable unique ID
 3. a small number of focused patches
 4. explicit logging around initialization and patch registration
+
+This incremental style is not just about cleanliness. It keeps the mod legible to its future maintainer, and in an Early Access environment that legibility is a practical defense against update churn.
