@@ -2,6 +2,8 @@
 
 This repository is a version-aware tutorial for building <u>local-only</u> C# mods for **Slay the Spire 2 Early Access**. It is written for readers who already know the basics of C#, .NET, and Godot, and want a compact explanation of how those tools meet the concrete loading, packaging, and runtime contracts used by the live game.
 
+You can find this tutorial on [GitHub Pages](https://fresh-milkshake.github.io/Modding-Tutorial/).
+
 ## Covers
 
 - setup and verified version baseline
