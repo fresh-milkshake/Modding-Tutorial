@@ -1,6 +1,6 @@
 # Slay the Spire 2 Modding Handbook
 
-This is the repo-local table of contents for the tutorial. The public landing page is [README.md](README.md), while this file frames how the handbook is organized and which kinds of facts it treats as authoritative.
+This page frames how the handbook is organized and which kinds of facts it treats as authoritative. For the main landing page, start at [Home](index.md).
 
 ## Scope
 

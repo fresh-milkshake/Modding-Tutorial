@@ -1,0 +1,74 @@
+site_name: Slay the Spire 2 Modding Tutorial
+site_description: Version-aware handbook for local-only C# modding in Slay the Spire 2 Early Access.
+site_url: https://fresh-milkshake.github.io/Modding-Tutorial/
+repo_url: https://github.com/fresh-milkshake/Modding-Tutorial
+repo_name: fresh-milkshake/Modding-Tutorial
+edit_uri: edit/main/docs/
+docs_dir: docs
+site_dir: site
+strict: true
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.action.edit
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: red
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Handbook:
+      - Overview: handbook-overview.md
+      - 01. Environment Setup: 01-environment-setup.md
+      - 02. Game Layout And Loader Surface: 02-vanilla-sts2-layout.md
+      - 03. Project Skeleton, Build, And Manifests: 03-mod-loading-and-manifests.md
+      - 04. Reverse-Engineering The Game: 04-reverse-engineering-the-game.md
+      - 05. Behavior Mods, Harmony, And Hooks: 05-entrypoints-harmony-and-hooks.md
+      - 06. Content Mods, Assets, PCK, And Localization: 06-assets-pck-and-localization.md
+      - 07. Native UI And Runtime Inspection: 07-native-ui-and-runtime-inspection.md
+      - 08. Debugging And Fast Iteration: 08-debugging-and-fast-iteration.md
+      - 09. Packaging, Installing, And Verifying: 09-packaging-installing-and-verifying.md
+  - Reference:
+      - Appendix A. API Inventory: appendix-api-inventory.md
+      - Appendix B. Release Package Patterns: appendix-example-mods.md
+      - References: references.md
