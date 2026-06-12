@@ -1,76 +1,83 @@
 # 01. Environment Setup
 
-## Required Baseline
+STS2 modding combines a managed assembly, a Godot resource pack, and a loader built into the game. The correct toolchain is therefore determined by the installed release rather than by a standalone mod SDK.
 
-For the current local STS2 build used in this handbook, the practical toolchain is:
+## Verified Toolchain
 
-- Slay the Spire 2 installed via Steam
-- .NET 9 SDK
-- Godot 4.5.1 .NET
-- a C# IDE or decompiler
+The baseline used throughout this handbook is:
 
-These requirements are modest, but each one exists for a concrete reason. STS2 modding is not split into a purely scripting workflow and a purely content workflow; it sits at the boundary between the managed runtime, the Godot content pack, and the game's own loader contracts. The toolchain therefore needs to be close to the runtime the game actually ships.
+- STS2 `v0.103.3`, commit `460a0ece`
+- .NET target framework `net9.0`
+- bundled Microsoft.NETCore.App `9.0.7`
+- Godot PCK version `4.5.1`
+- the `sts2.dll`, `0Harmony.dll`, and `GodotSharp.dll` files shipped with the same game install
 
-Why this exact stack:
+`sts2.runtimeconfig.json` is the direct source for the target framework and runtime version. `release_info.json` is the direct source for the game release. Do not infer either value from an old project file.
 
-- `sts2.dll` is a managed assembly
-- the game ships `0Harmony.dll` and `GodotSharp.dll`
-- the main game pack reports Godot `4.5.1`
-- `sts2_stdout.log` reports `MegaDot v4.5.1.m.8.mono.custom_build`
+## Required Files
 
-Use the game's own assemblies and the matching Godot line. Do not build against random copies.
+For the default Steam installation, verify:
 
-This is less about purity than about avoiding subtle mismatches. A mod that compiles against the wrong assembly version or is packed with the wrong Godot line can fail in ways that look unrelated to the original mistake.
-
-## Baseline Verified Here
-
-- STS2 release version: `v0.99.1`
-- release date: `2026-03-13T20:40:28-07:00`
-- engine line: `MegaDot v4.5.1.m.8.mono.custom_build`
-- main pack Godot version: `4.5.1`
-
-Keeping this baseline explicit makes later claims about packaging, manifests, and runtime behavior easier to interpret. In an Early Access game, version context is part of the technical content.
-
-## Minimum Local Checks
-
-Before starting a mod, verify:
-
-1. `release_info.json` exists in the game root
-2. `data_sts2_windows_x86_64\sts2.dll` exists
-3. `data_sts2_windows_x86_64\0Harmony.dll` exists
-4. `data_sts2_windows_x86_64\GodotSharp.dll` exists
-5. `SlayTheSpire2.pck` exists
-6. `mods\` exists or can be created
-
-Optional but useful:
-
-1. launch the game once
-2. inspect `sts2_stdout.log`
-3. confirm the engine and release lines
-
-This first verification pass is valuable because it turns setup into evidence rather than assumption. Once these files and lines are confirmed locally, later debugging becomes narrower and more factual.
-
-## Minimal Bootstrap
-
-Create a starter library:
-
-```powershell
-dotnet new classlib -n MyMod -f net9.0
+```text
+<STS2>/
+  release_info.json
+  SlayTheSpire2.pck
+  data_sts2_windows_x86_64/
+    sts2.dll
+    sts2.runtimeconfig.json
+    0Harmony.dll
+    GodotSharp.dll
 ```
 
-Keep machine-specific paths out of source control. Use local-only props, environment variables, or user-overridden MSBuild properties for:
+The game installation acts as the SDK:
 
-- game install path
-- Godot executable path
-- optional local deploy path
+- `sts2.dll` defines models, commands, hooks, nodes, and loader types
+- `0Harmony.dll` supplies the patching runtime already used by the game
+- `GodotSharp.dll` supplies the exact Godot C# API loaded by the executable
+- `SlayTheSpire2.pck` supplies resource names, localization tables, scenes, and imported asset conventions
 
-That separation is useful even in a single-developer repository, because it keeps the authored project shape independent from one workstation's directory layout.
+Mixing assemblies from another STS2 version can compile successfully and still fail when a method, field, or generated Godot binding has changed.
 
-## Common Setup Mistakes
+## Create The Project
 
-- using standard Godot instead of the .NET build
-- referencing assemblies from a different STS2 version than the one being tested
-- copying a template without checking the current game install
-- treating `.dll` output as the full mod when the mod also needs a `.pck`
+```powershell
+dotnet new classlib -n FieldNotes -f net9.0
+```
 
-Most setup failures in STS2 modding are not exotic. They are usually mismatches between the project and the live install.
+Keep machine-specific paths outside committed project logic when possible. A practical project accepts `GameDir` or `Sts2DataDir` as an MSBuild property and provides the common Steam path only as a local fallback.
+
+## Tools
+
+Required:
+
+- .NET 9 SDK
+- a C# editor
+- a .NET decompiler such as ILSpy
+
+Required only for content packs:
+
+- a Godot 4.5.1 .NET editor or a compatible PCK packer
+
+Useful local tools may be shipped under `<STS2>/tools`, including `godotpcktool.exe`. They are development conveniences, not runtime dependencies of a mod.
+
+## Preflight Check
+
+Before writing code:
+
+1. read the current version from `release_info.json`
+2. read the TFM from `sts2.runtimeconfig.json`
+3. confirm all three referenced DLLs come from the same data directory
+4. inspect the PCK header and confirm its Godot version
+5. launch the unmodified game once and locate its current logs
+
+Record these values in release notes or a maintenance issue. Version evidence makes later breakage reproducible.
+
+## Common Setup Failures
+
+- targeting the latest installed .NET SDK instead of the game's TFM
+- using NuGet Harmony or GodotSharp assemblies that differ from the shipped copies
+- decompiling an old backup of `sts2.dll`
+- packing assets with an incompatible Godot version
+- assuming a successful DLL build proves the PCK and manifest are valid
+
+The next chapter maps these files to the loader stages that consume them.

@@ -1,12 +1,11 @@
 # 02. Game Layout And Loader Surface
 
-## Verified Game Root Layout
+## Installation Domains
 
-The local install used here contains:
+A current Windows installation has three modding-relevant domains:
 
 ```text
 Slay the Spire 2/
-  controller_config/
   data_sts2_windows_x86_64/
   mods/
   tools/
@@ -17,68 +16,64 @@ Slay the Spire 2/
   sts2_stderr.log
 ```
 
-At a high level, this layout separates the game into three modding-relevant domains. `data_sts2_windows_x86_64/` is the managed runtime payload and therefore the authoritative source for assemblies, public types, and method signatures. `SlayTheSpire2.pck` is the primary Godot content pack and therefore the authoritative source for asset names, localization layout, and `res://` paths. `mods/` is the local installation target for user-provided mod payloads.
+`data_sts2_windows_x86_64/` is the managed runtime surface. `SlayTheSpire2.pck` is the native content surface. `mods/` is the discovery root for local mods. A failure should first be assigned to one of these domains before individual code is changed.
 
-The remaining directories matter less for day-to-day mod authoring. `controller_config/` is part of the shipped game, but it is not central to the standard C# mod workflow described here. `tools/` may exist in a local install and may contain useful helpers, but those helpers should not be treated as a universal requirement unless you have confirmed they are part of the exact game build you are documenting.
+## Current Release Marker
 
-## Release Metadata
+The verified local `release_info.json` contains:
 
-`release_info.json` is the authoritative local version marker. On this machine it reports `v0.99.1` dated `2026-03-13T20:40:28-07:00`.
+```json
+{
+  "commit": "460a0ece",
+  "version": "v0.103.3",
+  "date": "2026-05-29T13:36:05-07:00",
+  "branch": "v0.103.3",
+  "main_assembly_hash": -1584622192
+}
+```
 
-This file is more important than it first appears. A large share of STS2 modding advice is version-sensitive: loader behavior, hook signatures, content conventions, and even install layout expectations can drift between Early Access updates. If a tutorial makes a precise statement, that statement should be traceable to a concrete game version, and `release_info.json` is the simplest local anchor for that purpose.
+This handbook was revalidated after Major Update #1. Public update notes identify `v0.103.2` as the main-branch consolidation of the preceding beta changes; the installed build used here is the later `v0.103.3` release.
 
-## Managed Runtime Payload
+## Loader Sequence
 
-The most important files under `data_sts2_windows_x86_64/` are:
+The current `ModManager` performs the following high-level sequence:
 
-- `sts2.dll`
-- `0Harmony.dll`
-- `GodotSharp.dll`
+1. recursively enumerate files below `<STS2>/mods`
+2. deserialize every `.json` file as a `ModManifest`
+3. reject manifests without an `id`
+4. order detected mods by their declared dependencies
+5. load sibling `<id>.dll` and `<id>.pck` files according to `has_dll` and `has_pck`
+6. call every type marked with `[ModInitializer]`
+7. if no initializer exists, create a Harmony instance and call `PatchAll(assembly)` automatically
+8. expose loaded mod assemblies to reflection and model discovery
 
-In practice, this directory is the reference surface for nearly every code-facing task. It is where you point ILSpy or another decompiler when you need to inspect the live API. It is where your IDE resolves symbols when you want compile-time correctness against the exact runtime the game is using. It is also where you obtain the game-shipped Harmony and GodotSharp assemblies, which is usually safer than mixing in copies from unrelated installs.
+The directory containing a manifest becomes that mod's payload directory. This is why a named subdirectory is now the clearest local installation unit.
 
-This distinction matters because STS2 modding is not built on a separate public SDK. The installed game is the SDK. Once that is clear, many workflow choices become simpler: compile against the live assemblies, inspect the live assemblies, and assume that any version mismatch between your project and the local install is a likely source of failure.
+## Public Modding Surface
 
-## Verified Modding Surface
-
-The current build exposes these key types:
+The main types are:
 
 - `MegaCrit.Sts2.Core.Modding.ModManager`
 - `MegaCrit.Sts2.Core.Modding.ModManifest`
 - `MegaCrit.Sts2.Core.Modding.ModInitializerAttribute`
 - `MegaCrit.Sts2.Core.Modding.ModHelper`
 - `MegaCrit.Sts2.Core.Hooks.Hook`
+- `MegaCrit.Sts2.Core.Models.ModelDb`
 
-Important `ModManager` members:
+Current public `ModManager` functionality includes loaded-mod enumeration, mod state, gameplay-relevant mod names, localization table discovery, and mod detection events. Several methods named in older guides, including direct public load and initializer helpers, are now implementation details and should not be treated as stable mod APIs.
 
-- `Initialize`
-- `LoadModsInDirRecursive`
-- `TryLoadModFromPck`
-- `TryLoadModFromSteam`
-- `CallModInitializer`
-- `GetModdedLocTables`
+## Dependencies
 
-Taken together, these members describe a real loader rather than a loose community convention. `LoadModsInDirRecursive` shows that STS2 performs recursive discovery. `TryLoadModFromPck` shows that `.pck` files are not an accidental packaging trick but a first-class payload form understood by the game itself. `CallModInitializer` shows that initialization is structured around a known attribute-based contract rather than a guessed entrypoint name. `GetModdedLocTables` shows that the loader has explicit knowledge of modded localization rather than treating strings as a side effect of asset loading.
+`dependencies` is a list of manifest IDs, not display names or filenames. The loader delays a mod until all declared dependencies are loaded. Missing and circular dependencies are reported as load failures.
 
-This is the main reason the tutorial stays close to the live API. When the game already models loading, initialization, and localization explicitly, the safest modding strategy is usually to align with those existing contracts instead of inventing a parallel system.
+Use dependencies only for real runtime requirements. A mod that merely interoperates with another mod should usually detect it at runtime instead of making it mandatory.
 
-## Loader State And Consent
+## Player Consent And Disablement
 
-`ModSettings` and `ModManager` also expose:
+The loader also tracks player consent and disabled mods. A correct payload can remain inactive when mod loading has not been accepted or the mod is disabled in settings. Diagnose loader state before changing the DLL.
 
-- `PlayerAgreedToModLoading`
-- disabled-mod tracking
+## Resource Packs
 
-That means local mod loading is not merely a matter of dropping files into a directory. The game maintains player-facing state around whether mod loading is allowed and which mods are disabled. This matters for troubleshooting because a correctly packaged mod can still fail to appear if the relevant consent or enablement path is not in the expected state. It also matters for documentation, because a tutorial that describes only file layout and omits loader state is incomplete.
+When `has_pck` is true, the loader calls `ProjectSettings.LoadResourcePack` for `<id>.pck`. The pack can add resources anywhere below `res://`, subject to Godot path and collision rules. Localization is more specific: the current loader probes `res://<id>/localization/<language>/<file>` for every loaded mod.
 
-## What Logs And The Main Pack Confirm
-
-From runtime logs and `SlayTheSpire2.pck`:
-
-- the game runs on a custom Mono-enabled Godot 4.5.1 line
-- vanilla localization lives under `localization/<lang>/...`
-- relic art uses Godot-imported resources such as `images/relics/*.png.import`
-
-These findings are useful because they connect the code-facing and content-facing sides of modding. Runtime logs tell you what the executable actually launched, including the engine line and practical loading behavior. The main pack tells you how the shipped game names and stores its resources. Together they form a better source of truth than any single community guide.
-
-When documentation and behavior disagree, trust the live install first. In STS2 modding, a decompiled method, a shipped pack path, and a runtime log line usually outweigh any remembered convention.
+The next chapter turns this loader behavior into a project and installation layout.

@@ -1,29 +1,31 @@
-# 03. Project Skeleton, Build, And Manifests
+# 03. Project Skeleton, Build, And Manifest
 
-## Recommended Project Shape
-
-For a small STS2 mod, start with:
+## Recommended Repository Shape
 
 ```text
-MyMod/
-  MyMod.csproj
+FieldNotes/
+  FieldNotes.csproj
   ModEntry.cs
+  Cards/
+  Potions/
+  Relics/
+  Events/
+  Gui/
   Patches/
   godot/
-    mod_manifest.json
-  build.ps1
+    FieldNotes/
+      localization/
+      images/
+    images/
+      atlases/
   build/
     mods/
-      MyMod/
+      FieldNotes/
 ```
 
-This structure is minimal, but it captures the actual boundaries that matter. The C# side lives in the project root and `Patches/`, where managed code, entrypoints, and Harmony patches can remain visible and easy to inspect. The Godot-side payload lives under `godot/`, which makes it obvious which files are intended to be packed into the `.pck`. The `build/` directory becomes a staging area rather than a source directory, which keeps generated output separate from authored files.
+The source tree separates managed models from Godot resources. The staging directory mirrors the final installation and should contain only files that will be shipped.
 
-The stable local staging pattern is `build/mods/<ModId>/`. That is useful both conceptually and operationally: it gives you a single place to inspect the exact payload you are about to install or ship.
-
-## Minimal `.csproj`
-
-Use the current game assemblies directly:
+## Project File
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -38,7 +40,7 @@ Use the current game assemblies directly:
 
   <Target Name="ValidateGameReferences" BeforeTargets="ResolveReferences">
     <Error Condition="'$(Sts2DataDir)' == '' or !Exists('$(Sts2DataDir)\sts2.dll')"
-           Text="Set GameDir or Sts2DataDir to your Slay the Spire 2 install before building." />
+           Text="Set GameDir or Sts2DataDir to the current Slay the Spire 2 installation." />
   </Target>
 
   <ItemGroup>
@@ -58,41 +60,19 @@ Use the current game assemblies directly:
 </Project>
 ```
 
-This project file is intentionally plain. The important part is not the amount of MSBuild logic but the direction of dependency flow. The mod depends on the installed game, not on an abstract package feed. `TargetFramework` should match the active runtime line used by the game, which in the current local baseline is `net9.0`. The guarded `GameDir` and `Sts2DataDir` properties make it possible to build on a machine with the common Steam layout while still failing early and clearly on machines that differ.
+`Private=false` prevents copies of game-owned assemblies from being staged beside the mod DLL. The running game already supplies them.
 
-The explicit references also serve as documentation. They say, in concrete form, that a typical STS2 C# mod relies on the game assembly, Harmony, and GodotSharp, and that those references are expected to come from the game install itself.
+## One External Manifest
 
-## Two Manifest Layers
-
-On the current local build, treat these as separate files with separate roles.
-
-### Payload manifest: `godot/mod_manifest.json`
-
-This is the STS2 payload contract. `ModManifest` currently maps these fields:
-
-- `author`
-- `description`
-- `name`
-- `pckName`
-- `version`
-
-On disk, the JSON key is `pck_name`.
-
-This file describes the mod payload as STS2 understands it. It belongs to the `.pck` layer and should be thought of as part of the Godot-side package contract. In practice, authors often keep a copy in staging as well, because it is useful for inspection and build scripting, but its natural home is still the payload being packed.
-
-The important operational rule is negative: do not copy loose `mod_manifest.json` files into the root `mods\` directory for installed mods. The filename is generic, so multiple installed mods would collide immediately at that level.
-
-### Installed-mod record: `<ModId>.json`
-
-On this machine, the installed-mod UI was most reliable with root-level metadata shaped like:
+`v0.103.3` uses one manifest file discovered below `<STS2>/mods`. Name it `<ModId>.json` and place it beside the declared payloads:
 
 ```json
 {
-  "id": "MyMod",
-  "name": "My Mod",
-  "author": "Author",
-  "description": "Short description.",
-  "version": "v0.1.0",
+  "id": "FieldNotes",
+  "name": "Field Notes",
+  "author": "Example Author",
+  "description": "Adds an example card, potion, relic, event, and overlay.",
+  "version": "0.1.0",
   "has_pck": true,
   "has_dll": true,
   "dependencies": [],
@@ -100,43 +80,81 @@ On this machine, the installed-mod UI was most reliable with root-level metadata
 }
 ```
 
-This file serves a different audience. It is not primarily about the internal contents of the Godot pack; it is about the installed-mod record seen by the current loader and UI path on the local build. The safest documentation strategy is therefore to describe it as a separate layer, not as a synonym for `mod_manifest.json`.
+Current fields:
 
-Keep `id`, payload basenames, and `pck_name` aligned unless you have a verified reason not to. In ordinary cases, identity drift between these names creates more confusion than flexibility.
+| Field | Meaning |
+| --- | --- |
+| `id` | Required loader identity and payload basename |
+| `name` | Display name |
+| `author` | Display metadata and fallback Harmony ID prefix |
+| `description` | Display metadata |
+| `version` | Mod version shown to the loader and metrics |
+| `has_pck` | Require and load `<id>.pck` |
+| `has_dll` | Require and load `<id>.dll` |
+| `dependencies` | Manifest IDs that must load first |
+| `affects_gameplay` | Whether the mod is included in gameplay-relevant mod reporting |
 
-## Build And Staging Flow
+There is no `pck_name` field in the current `ModManifest`, and an embedded `mod_manifest.json` is not the active loader contract.
 
-The common local flow is:
+## Identity Contract
 
-1. build the `.dll`
-2. copy the `.dll` and `godot/mod_manifest.json` into `build/mods/<ModId>/`
-3. pack the Godot-side payload into `<ModId>.pck`
-4. write `<ModId>.json`
-5. optionally copy the final root-level files into the game `mods\` directory
-
-This sequence is worth understanding as a pipeline rather than a checklist. The `.dll` is the managed behavior layer. The `.pck` is the Godot-side content layer. `<ModId>.json` is installation metadata for the current local build. Staging gathers those layers into one inspectable directory before installation. If something breaks, knowing which stage produced the break is often the fastest path to a fix.
-
-Useful local helper tools such as `godotpcktool.exe` can speed this up, but they are optional helpers, not a vanilla STS2 requirement. The tutorial should describe the packaging model first and the local convenience tooling second.
-
-## Current Installed Layout Recommendation
-
-For the local `v0.99.1` build used here, the safest installed shape is:
+For a manifest with `"id": "FieldNotes"`, the loader resolves:
 
 ```text
-<STS2>\mods\
-  MyMod.json
-  MyMod.dll
-  MyMod.pck
+<manifest directory>/FieldNotes.dll
+<manifest directory>/FieldNotes.pck
 ```
 
-For code-only mods:
+The external manifest filename does not technically define identity, but matching it to the ID removes ambiguity and avoids accidental parsing of unrelated JSON files. Because every `.json` below `mods/` is treated as a possible manifest, do not store settings or arbitrary JSON beside installed mods unless they are outside the scanned tree or use a different extension.
+
+## Initializer And Registration
+
+Use an explicit initializer when the mod registers content, subscribes hooks, or needs startup logging:
+
+```csharp
+using HarmonyLib;
+using MegaCrit.Sts2.Core.Modding;
+using MegaCrit.Sts2.Core.Models.CardPools;
+using MegaCrit.Sts2.Core.Models.PotionPools;
+using MegaCrit.Sts2.Core.Models.RelicPools;
+
+[ModInitializer(nameof(Initialize))]
+public static class ModEntry
+{
+    public static void Initialize()
+    {
+        ModHelper.AddModelToPool<ColorlessCardPool, FieldNotesCard>();
+        ModHelper.AddModelToPool<SharedPotionPool, BottledInsightPotion>();
+        ModHelper.AddModelToPool<SharedRelicPool, SurveyorLensRelic>();
+
+        new Harmony("example.fieldnotes").PatchAll(typeof(ModEntry).Assembly);
+    }
+}
+```
+
+Pool registration must happen before the game freezes pool contents. `ModHelper` throws when a model is added after initialization.
+
+## Build And Stage
+
+The expected output is:
 
 ```text
-<STS2>\mods\
-  MyMod.json
-  MyMod.dll
+build/mods/FieldNotes/
+  FieldNotes.json
+  FieldNotes.dll
+  FieldNotes.pck
 ```
 
-This recommendation is deliberately conservative. Real release archives can vary, and the game may tolerate more than one top-level zip layout, but installation is where ambiguity becomes expensive. A normalized installed shape gives the loader and installed-mod UI the clearest possible input and gives the author the simplest possible troubleshooting surface.
+A code-only mod sets `has_pck` to `false` and omits the PCK. A data-only pack sets `has_dll` to `false`, although most custom model examples require a DLL.
 
-Archive shape can vary. Installed shape should be normalized.
+Build scripts should fail when a declared payload is absent. Silent partial staging produces manifests that the loader can detect but cannot satisfy.
+
+## Installation
+
+Copy the whole staged directory to:
+
+```text
+<STS2>/mods/FieldNotes/
+```
+
+Root-level manifests and payloads still work because discovery is recursive from `mods/`, but per-mod directories isolate filenames, simplify removal, and match the loader's directory ownership model.

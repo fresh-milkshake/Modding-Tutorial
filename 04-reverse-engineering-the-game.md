@@ -1,97 +1,99 @@
 # 04. Reverse-Engineering The Game
 
-## Ground Rules
+STS2 does not currently expose a separate, versioned mod SDK. Reverse engineering is therefore ordinary compatibility work: inspect the release that will execute the mod, identify the narrowest supported integration point, and record the evidence behind the decision.
 
-For STS2 modding, reliable evidence usually means:
+## Evidence Sources
 
-- decompiled `sts2.dll`
-- inspected `SlayTheSpire2.pck`
-- runtime logs
-- observed working mod payloads
+Use each source for the question it can answer:
 
-That is normal for an early-access game, and it changes how reverse engineering should be understood. The goal is not to recover an idealized source tree. The goal is to recover enough truthful structure to make correct integration decisions. In practice, that means distinguishing behavioral truth from cosmetic decompiler output, and distinguishing live shipped conventions from assumptions inherited from other Godot or C# projects.
+| Source | Best for |
+| --- | --- |
+| `release_info.json` | exact release and commit |
+| `sts2.runtimeconfig.json` | target framework and bundled runtime |
+| `sts2.dll` | types, signatures, call order, hooks, and loader behavior |
+| `SlayTheSpire2.pck` | scenes, localization, images, and exact `res://` paths |
+| runtime logs | what the executable actually attempted |
+| clean installation test | whether all layers work together |
 
-## Start In The Right Namespaces
+A decompiler can produce awkward names for compiler-generated arrays and state machines. Treat those artifacts as presentation noise; focus on public signatures, control flow, path construction, and method calls.
 
-For modding-specific work, begin with:
+## Start From The Domain Object
 
-- `MegaCrit.Sts2.Core.Modding`
-- `MegaCrit.Sts2.Core.Hooks`
-- `MegaCrit.Sts2.Core.Models`
-- `MegaCrit.Sts2.Core.Entities`
-- `MegaCrit.Sts2.Core.Rooms`
-- `MegaCrit.Sts2.Core.Combat`
+Search by the object the player interacts with, not by a guessed patch site:
 
-These namespaces are useful because they correspond to the conceptual boundaries a modder usually cares about: loading, gameplay events, model definitions, combat logic, and room or run flow. Starting there reduces the temptation to patch whatever method happens to be easiest to find first.
+- cards: `CardModel`, a simple vanilla card, its pool, and `CardPileCmd`
+- potions: `PotionModel`, a simple potion, its pool, and use commands
+- relics: `RelicModel`, a simple hook-based relic, and its pool
+- events: `EventModel`, `EventOption`, the target `ActModel`, and `EventRoom`
+- UI: the concrete native screen, its stack, host, tooltip layer, and focus context
 
-For content-specific work, inspect the matching model namespace first. A content mod that begins from generation code instead of the model contract often becomes more brittle than necessary.
+The nearest simple vanilla implementation is usually the best executable specification. For example, `Backflip`, `SwiftPotion`, `Anchor`, and `ThisOrThat` demonstrate the current constructor, dynamic-variable, async command, and event-option patterns without large amounts of unrelated logic.
 
-## Recommended Workflow
+## Assembly Workflow
 
-1. identify the gameplay object or screen you want to change
-2. find its real type in `sts2.dll`
-3. inspect overrides, nearby helpers, pools, and hooks
-4. inspect the matching assets and localization in `SlayTheSpire2.pck`
-5. only then choose between a hook, a new model, a Harmony patch, assets, or new strings
+With ILSpy command-line tooling, a focused query has the form:
 
-This order matters because it forces problem definition before implementation. Many failed STS2 modding attempts are really classification errors: a modder thinks they need a Harmony patch, but the job is actually model registration; or they think the problem is code, but the real issue is a wrong `res://` path inside the pack. By walking from the gameplay target to the live type, and only then to code or content changes, you reduce that class of mistake.
+```powershell
+ilspycmd --disable-updatecheck `
+  -t 'MegaCrit.Sts2.Core.Models.Cards.Backflip' `
+  '<STS2>\data_sts2_windows_x86_64\sts2.dll'
+```
 
-## Use The Pack As A Second Source Of Truth
+Repeat the query for the base model and the pool. Do not copy a concrete implementation before checking which members are inherited and which paths are computed by the base class.
 
-Decompiled code tells you behavior. The main pack tells you naming and content conventions.
+High-value current types include:
 
-Use `SlayTheSpire2.pck` to answer:
+- `MegaCrit.Sts2.Core.Modding.ModManager`
+- `MegaCrit.Sts2.Core.Modding.ModManifest`
+- `MegaCrit.Sts2.Core.Modding.ModHelper`
+- `MegaCrit.Sts2.Core.Helpers.ReflectionHelper`
+- `MegaCrit.Sts2.Core.Models.ModelDb`
+- `MegaCrit.Sts2.Core.Hooks.Hook`
 
-- real asset folder names
-- language codes
-- localization table names
-- image naming conventions
-- exact `res://` paths
+The current loader's directory scan and initializer methods are private implementation details. Inspect them when validating behavior, but do not build mod code that calls them directly.
 
-This split is one of the most useful habits in STS2 reverse engineering. `sts2.dll` can tell you that a relic expects a large icon path or that localization is merged through a certain method. `SlayTheSpire2.pck` can tell you how that expectation is expressed in the shipped game, including actual filenames and table names. Neither source is complete on its own.
+## PCK Workflow
 
-## Treat Preview Objects Carefully
+The game-shipped PCK tool can list or extract selected files:
 
-Preview and inspect flows can use objects that are not identical to the source object you expect.
+```powershell
+godotpcktool.exe `
+  --pack '<STS2>\SlayTheSpire2.pck' `
+  --action list `
+  --include-regex-filter '^localization/eng/(cards|potions|relics|events)\.json$'
+```
 
-Example rule for upgrade work:
+Prefer selective extraction. The main pack is large, while most questions concern one table, scene, or image family.
 
-- confirm whether the preview object is already at the target state before applying more math
+Use the PCK to verify:
 
-Do not assume the preview instance is always the original source instance. In UI-heavy systems, STS2 can present objects that are already transformed for display or preview purposes. If you patch these as though they were the underlying source objects, your logic can drift by a full step immediately.
+- whether localization is a flat key/value table or a nested object
+- whether a model expects a PNG, imported texture, atlas resource, or scene
+- the exact slug and case used in paths
+- the native scene hierarchy before reusing a UI screen
 
-## High-Value Entry Points
+## Trace The Full Contract
 
-These current members are especially useful when reasoning about STS2 modding:
+For new content, answer these questions before implementation:
 
-- `ModManager.LoadModsInDirRecursive`
-- `ModManager.TryLoadModFromPck`
-- `ModManager.CallModInitializer`
-- `ModManager.GetModdedLocTables`
-- `ModHelper.AddModelToPool`
+1. How does `ModelDb` discover the type?
+2. Which pool or list allows generation to select it?
+3. Which localization table and keys does the base class construct?
+4. Which resource paths are fixed, virtual, or derived from the pool?
+5. Which unlock or catalog filters can hide it?
+6. Which mutable owner state is required when the effect runs?
+7. Which save representation stores its model ID or fields?
 
-Interpretation:
+This prevents partial integrations. A type can exist in `ModelDb` but never be generated; it can be generated but fail in hover UI; it can render in combat but disappear from the library; it can work until a save is loaded.
 
-- mod loading is recursive
-- `.pck` is a first-class load unit
-- initialization is attribute-driven
-- modded localization is merged explicitly
-- model registration has dedicated helper support
+## Update Maintenance
 
-These methods are useful not only because they exist, but because they reveal the game's preferred integration style. Recursive loading tells you to think in terms of payload discovery rather than a single hardcoded folder. Explicit localization merging tells you that string placement is governed by a known rule. `AddModelToPool` tells you that at least some content-extension paths are expected by the game rather than merely tolerated by it.
+After every STS2 update:
 
-## Optional Helper Tooling
+1. compare `release_info.json` and the assembly hash
+2. rebuild against the new shipped DLLs
+3. re-decompile every patched method and every inherited base model used by the mod
+4. re-list PCK paths used by custom resources
+5. test a clean new run and a save created by the previous release
 
-Local debug-hook and reflection helpers can speed up research, especially for UI work, but they are optional accelerators. Their role is to shorten the path from question to evidence, not to replace the live game as the source of truth. Keep the tutorial grounded in the live game, not in helper-tool assumptions.
-
-## Practical Checklist Before You Implement
-
-Before you add a feature, confirm:
-
-1. the exact vanilla type you are targeting
-2. whether a built-in hook already exists
-3. which localization table the vanilla feature uses
-4. which asset names and paths the vanilla feature expects
-5. whether the job is really content registration, behavior interception, or UI reuse
-
-This checklist is simple, but it captures the most common points where STS2 mod work goes wrong. A correct answer to all five questions usually narrows the implementation space dramatically.
+Compilation is only the first compatibility check. Harmony targets, reflection names, resource paths, and lifecycle order can change without producing compile errors.

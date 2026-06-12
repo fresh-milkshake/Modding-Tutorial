@@ -1,107 +1,122 @@
 # 05. Behavior Mods, Harmony, And Hooks
 
-## Core Entry Mechanism
+## Explicit Initialization
 
-The current build exposes `ModInitializerAttribute` with a string method name. The standard STS2 entry pattern is type-level:
+The current loader searches a loaded assembly for types marked with `ModInitializerAttribute`. The attribute names a static method:
 
 ```csharp
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
 
-[ModInitializer("Initialize")]
+[ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
     public static void Initialize()
     {
-        var harmony = new Harmony("com.example.mymod");
-        harmony.PatchAll(typeof(ModEntry).Assembly);
+        new Harmony("example.fieldnotes").PatchAll(typeof(ModEntry).Assembly);
     }
 }
 ```
 
-Practical implications:
+An explicit initializer is preferable even though `v0.103.3` falls back to automatic `Harmony.PatchAll` when no initializer exists. Registration, hook subscriptions, compatibility checks, and startup logging need a deterministic location.
 
-- the attribute belongs on a type
-- the named method must exist
-- a typo can leave a correctly packaged mod unloaded at runtime
+## Three Integration Levels
 
-This entry model is important because it shows that STS2 does not expect a special assembly name or a convention-based top-level bootstrap class. Instead, it expects a type marked as an initializer owner, and it expects that type to expose a callable method whose name matches the attribute argument. That is a narrow but clear contract, and it is one of the simplest places to diagnose packaging failures that otherwise look mysterious.
+Use the least invasive level that expresses the feature:
 
-## Use Hooks First
+1. override a model method or use the command API when implementing a new model
+2. use semantic hooks when behavior belongs to a named gameplay phase
+3. use Harmony when no model or hook contract reaches the required behavior
 
-The built-in hook surface under `MegaCrit.Sts2.Core.Hooks.Hook` covers:
+This order separates extension from interception. A custom card should implement `OnPlay`; it should not patch the global card-play routine. A custom relic should override a hook such as `BeforeCombatStart`; it should not patch every combat constructor.
 
-- combat lifecycle
-- turn flow
-- damage and block
-- cards and piles
-- rewards, merchants, and economy
-- rooms, map flow, and acts
-- potions, powers, and healing
-- death prevention and combat-ending checks
+## Semantic Hooks
 
-If the game already names the event you need, prefer the hook over a Harmony patch.
+`MegaCrit.Sts2.Core.Hooks.Hook` exposes lifecycle and modifier hooks for combat, turns, cards, rooms, rewards, merchants, potions, powers, healing, damage, block, death prevention, and other systems.
 
-Why:
+Hook signatures are not uniform:
 
-- hooks express intent directly
-- hooks tend to survive internal refactors better
-- hooks reduce the amount of method-body interception you own
+- notification hooks commonly return `Task`
+- veto hooks commonly return `bool`
+- modifier hooks return a transformed value
+- many hooks receive `IRunState`, `CombatState`, `Player`, or `PlayerChoiceContext`
 
-Hooks are valuable not only because they are convenient, but because they encode the game's own understanding of its event boundaries. If STS2 already distinguishes `AfterCombatEnd` from `AfterCombatVictory`, or `AfterCardPlayed` from a later post-resolution path, that distinction is information. Using the hook preserves the game's semantics instead of forcing the mod to infer them from lower-level implementation details.
+Read the exact signature and inspect at least one vanilla caller. The position of a hook in an async command chain determines whether visual cleanup and state mutation have already completed.
 
-## Use Harmony When Needed
+### Card Resolution
 
-Use Harmony when:
+For an effect described as "after a card has resolved", use `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)` as the baseline. It runs later than the immediate post-play hook and is safer for effects that assume result-pile movement and the normal play sequence have completed.
 
-- there is no built-in hook for the behavior
-- you need a precise method interception
-- you are changing implementation details rather than registering content
+Do not replace or wrap a concrete card's `OnPlay` merely to observe completion. Owning the wrong task chain can leave cards in the wrong pile, interrupt animations, or duplicate cleanup.
 
-Read the exact signature before patching. STS2 uses `Task`, `bool`, and modifier-return patterns across both hooks and ordinary methods. A patch that ignores whether a method is part of an async chain, a veto path, or a value-transform path can appear correct at compile time while still breaking runtime ownership and sequencing.
+## Mod-Owned Hook Subscribers
 
-## Safe Hook Selection Matters
+`v0.103.3` adds explicit subscription paths for models that are not naturally reached through a card, relic, power, or modifier collection:
 
-For card behavior, not every patch point that "works" is equally safe.
+```csharp
+ModHelper.SubscribeForRunStateHooks(
+    "example.fieldnotes.run",
+    runState => GetRunScopedModels(runState));
 
-Prefer `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)` when your effect is conceptually:
+ModHelper.SubscribeForCombatStateHooks(
+    "example.fieldnotes.combat",
+    combatState => GetCombatScopedModels(combatState));
+```
 
-- after full card resolution
-- after discard or result-pile movement
-- after the game's own animation and cleanup work
+Each delegate returns `IEnumerable<AbstractModel>`. Subscriber IDs must be unique; the game sorts them ordinally and ignores duplicate IDs after logging an error. Use this path for a persistent mod-owned rules object that must receive hooks but does not belong to a vanilla state collection.
 
-Be careful when intercepting or replacing concrete `OnPlay(...)` task chains. That can break:
+## Harmony Patches
 
-- discard/result-pile movement
-- animation cleanup
-- card UI state
+Harmony remains appropriate for:
 
-This is one of the places where STS2 rewards patience. A patch placed too early in the play lifecycle may still produce the visible gameplay effect you wanted, which makes it tempting to declare success. The real regression often appears later, when a card remains on screen too long, moves to the wrong pile, or leaves UI state behind. In other words, "the effect fired" is not the same as "the integration point was correct."
+- adding an event to a concrete act list
+- inserting a launcher into an existing UI lifecycle
+- correcting a value before no semantic hook exists
+- observing a private implementation boundary after verifying its stability
 
-## Description Patch Warning
+Prefer exact targets:
 
-`CardModel.GetDescriptionForPile` has multiple overloads in the current local assembly.
+```csharp
+[HarmonyPatch(typeof(SomeType), nameof(SomeType.SomeMethod), typeof(Player))]
+internal static class SomeMethodPatch
+{
+    private static void Postfix(Player player)
+    {
+        // Narrow behavior only.
+    }
+}
+```
 
-Safe rule:
+For overloaded methods, specify parameter types or use `AccessTools.Method` with an explicit signature. Never patch all methods sharing a name unless every overload is intentionally part of the feature.
 
-- patch the deepest overload you actually need
-- do not blindly patch all matching names
+## Description Methods
 
-Otherwise it is easy to append the same custom text twice, especially if one overload delegates into another. Text rendering paths often look simpler than they are because the visible output is short while the call chain is layered.
+The current public card description entry point is:
 
-## Practical Decision Rule
+```csharp
+string GetDescriptionForPile(PileType pileType, Creature? target = null)
+```
 
-Use this order:
+It delegates to a private preview-aware overload. Patch the public signature only if the feature truly changes rendered text, and verify that the patch is not also applied through a caller. Earlier advice to patch multiple `GetDescriptionForPile` overloads is obsolete and commonly duplicates text.
 
-1. built-in hook if the game already names the event
-2. `ModHelper` or registration path if the job is content
-3. Harmony only when neither of the above covers the requirement
+## Async Safety
 
-Start small:
+When a target returns `Task`:
 
-1. one `[ModInitializer]` entry point
-2. one Harmony instance with a stable unique ID
-3. a small number of focused patches
-4. explicit logging around initialization and patch registration
+- use a model override or semantic hook if possible
+- do not block with `.Wait()` or `.Result`
+- preserve the original task unless intentionally replacing the operation
+- keep gameplay commands in the game's async sequence
 
-This incremental style is not just about cleanliness. It keeps the mod legible to its future maintainer, and in an Early Access environment that legibility is a practical defense against update churn.
+Commands such as `CreatureCmd`, `CardPileCmd`, `PlayerCmd`, and `RelicCmd` coordinate state, multiplayer choices, and visuals. Direct field mutation may bypass those systems.
+
+## Patch Maintenance
+
+For each Harmony patch, record:
+
+- target type and exact signature
+- why no model override or semantic hook is sufficient
+- assumptions about call order and mutable state
+- the game version last verified
+
+After an update, re-decompile the target before launching the old DLL. A patch can still bind while its semantic position has changed.
