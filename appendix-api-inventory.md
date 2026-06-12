@@ -1,167 +1,191 @@
 # Appendix A. API Inventory
 
-This appendix is a compact inventory of STS2 modding-relevant surfaces verified from the current `sts2.dll`. It is not intended to replace the narrative chapters. Its purpose is to give the reader a quick factual map of the API surface that those chapters refer to.
+Verified against `sts2.dll` from STS2 `v0.103.3`, commit `460a0ece`.
 
-## `MegaCrit.Sts2.Core.Modding.ModManifest`
+## `ModManifest`
 
-Observed fields:
+JSON fields:
 
+- `id`
+- `name`
 - `author`
 - `description`
-- `name`
-- `pckName`
 - `version`
+- `has_pck`
+- `has_dll`
+- `dependencies`
+- `affects_gameplay`
 
-Practical meaning:
+`id` is required. The loader resolves sibling `<id>.dll` and `<id>.pck` files from the manifest directory. `pck_name` is not a current field.
 
-- this is the manifest shape the loader understands
-- real mod JSON uses `pck_name` on disk to populate `pckName`
+## `ModManager`
 
-This is a small but useful example of the difference between runtime shape and on-disk JSON naming.
+Public members of interest:
 
-## `MegaCrit.Sts2.Core.Modding.ModManager`
+- `IReadOnlyList<Mod> Mods`
+- `bool PlayerAgreedToModLoading`
+- `event Action<Mod> OnModDetected`
+- `event MetricsUploadHook OnMetricsUpload`
+- `Initialize(IModManagerFileIo, ModSettings?)`
+- `GetModdedLocTables(string language, string file)`
+- `GetGameplayRelevantModNameList()`
+- `IsRunningModded()`
+- `HasHarmonyPatches()`
+- `GetLoadedMods()`
+- `Dispose()`
 
-Observed public members of interest:
+Directory scanning, manifest deserialization, dependency ordering, payload loading, and initializer invocation are internal implementation details. Inspect them for compatibility, but do not call them as a mod API.
 
-- `Initialize()`
-- `LoadModsInDirRecursive(Godot.DirAccess dirAccess, ModSource source)`
-- `TryLoadModFromPck(string pckFilename, Godot.DirAccess dirAccess, ModSource source)`
-- `TryLoadModFromSteam(PublishedFileId_t workshopItemId)`
-- `CallModInitializer(Type initializerType)`
-- `GetModdedLocTables()`
-- `GetModNameList()`
-- `AllMods`
-- `LoadedMods`
-- `PlayerAgreedToModLoading`
+## `Mod`
 
-Interpretation:
-
-- STS2 has a real mod manager, not just a loose assembly scanner
-- it loads recursively from directories
-- it handles `.pck` payloads explicitly
-- it can source mods from local directories and Steam Workshop
-- it has a dedicated path for modded localization tables
-
-Taken together, these members describe a loader that already understands the central concepts a modder cares about: discovery, payload loading, initialization, and string merging.
-
-## `MegaCrit.Sts2.Core.Modding.ModInitializerAttribute`
-
-Observed constructor:
-
-- `.ctor(string initializerMethod)`
-
-Interpretation:
-
-- the attribute is applied to a type
-- the string names the initializer method STS2 should call
-- working local mods consistently use it as a type-level bootstrap marker
-
-That narrow contract is one of the reasons initializer failures are usually diagnosable once the actual loader surface is inspected.
-
-## `MegaCrit.Sts2.Core.Modding.Mod`
-
-Observed fields:
+Current fields:
 
 - `modSource`
-- `pckName`
-- `wasLoaded`
+- `path`
+- `state`
 - `manifest`
 - `assembly`
-- `assemblyLoadedSuccessfully`
+- `errors`
 
-Interpretation:
+`path` is the directory containing the external manifest.
 
-- STS2 tracks both manifest metadata and assembly loading state separately
+## `ModInitializerAttribute`
 
-## `MegaCrit.Sts2.Core.Modding.ModHelper`
+Constructor:
 
-Observed methods of interest:
+```text
+ModInitializerAttribute(string initializerMethod)
+```
 
-- `AddModelToPool()`
+The named method must be static. If an assembly has no attributed type, the loader automatically calls Harmony `PatchAll` with an ID derived from author and mod ID.
+
+## `ModHelper`
+
+Current methods:
+
+- `AddModelToPool<TPoolType, TModelType>()`
 - `AddModelToPool(Type poolType, Type modelType)`
-- `ConcatModelsFromMods(...)`
+- `ConcatModelsFromMods<TModelType>(IPoolModel, IEnumerable<TModelType>)`
+- `SubscribeForRunStateHooks(string, RunHookSubscriptionDelegate)`
+- `SubscribeForCombatStateHooks(string, CombatHookSubscriptionDelegate)`
+- `IterateAllRunStateSubscribers(RunState)`
+- `IterateAllCombatStateSubscribers(CombatState)`
 
-Interpretation:
+Pool additions must occur before the pool is first materialized. Hook-subscriber IDs must be unique.
 
-- there is explicit helper support for merging modded models into pool-style game content
-- if you are adding cards, relics, or similar content, inspect this area before writing invasive patches
+## `ModelDb`
 
-For content mods, this is one of the highest-value signals that the game already expects extension in at least some structured form.
+Relevant behavior:
 
-## `MegaCrit.Sts2.Core.Modding.ModSettings`
+- discovers concrete mod `AbstractModel` subtypes through loaded assemblies
+- constructs canonical instances with public parameterless constructors
+- derives IDs from model category and class name
+- exposes typed helpers such as `Card<T>`, `Potion<T>`, `Relic<T>`, and `Event<T>`
+- aggregates pools, acts, events, encounters, and other model families
 
-Observed fields and properties:
+Discovery is not pool membership. Cards, potions, and relics still require `ModHelper.AddModelToPool`.
 
-- `PlayerAgreedToModLoading`
-- `DisabledMods`
+## Base Models
 
-Observed methods of interest:
+### `CardModel`
 
-- `IsModDisabled(Mod mod)`
-- `IsModDisabled(string pckName, ModSource source)`
+Current constructor:
 
-Interpretation:
+```text
+CardModel(int canonicalEnergyCost, CardType, CardRarity, TargetType, bool shouldShowInCardLibrary = true)
+```
 
-- the game stores player consent and mod disablement state
+Important overrides and properties:
 
-## `MegaCrit.Sts2.Core.Modding.ModSource`
+- `CanonicalVars`
+- `OnPlay(PlayerChoiceContext, CardPlay)`
+- `OnUpgrade()`
+- `PortraitPath`
+- `Pool`
+- `CanonicalKeywords`
+- `CanonicalTags`
+- `GetResultPileType()`
 
-Observed enum values:
+Public description method:
 
-- `None = 0`
-- `ModsDirectory = 1`
-- `SteamWorkshop = 2`
+```text
+GetDescriptionForPile(PileType, Creature? target = null)
+```
 
-## `MegaCrit.Sts2.Core.Hooks.Hook`
+### `PotionModel`
 
-The hook class exposes a large semantic extension surface. Grouped categories include:
+Required properties:
 
-- combat lifecycle
-- turn flow
-- damage and block
-- cards and piles
-- map and rooms
-- rewards and merchants
-- potions, powers, healing, gold, stars
-- death prevention and combat-ending checks
-- modifier hooks for card rewards, maps, prices, damage, block, costs, draw, and more
+- `Rarity`
+- `Usage`
+- `TargetType`
 
-Representative methods:
+Important members:
 
-- `BeforeCombatStart`
-- `AfterCombatEnd`
-- `AfterPlayerTurnStart`
-- `AfterDamageGiven`
-- `AfterDamageReceived`
-- `ModifyDamage`
-- `ModifyBlock`
-- `BeforeCardPlayed`
-- `AfterCardPlayed`
-- `AfterCardDrawn`
-- `BeforeRoomEntered`
-- `AfterRoomEntered`
-- `ModifyRewards`
-- `ShouldGainGold`
-- `AfterGoldGained`
-- `BeforePotionUsed`
-- `AfterPotionUsed`
-- `ShouldDie`
-- `AfterPreventingDeath`
+- `CanonicalVars`
+- `OnUse(PlayerChoiceContext, Creature?)`
+- `AssertValidForTargetedPotion`
+- `CanBeGeneratedInCombat`
+- custom usability checks
+- `ExtraHoverTips`
 
-Representative signature samples confirmed locally:
+`Pool` requires membership in a current potion pool. Image lookup uses fixed atlas-resource paths derived from the model ID.
 
-- `Task AfterGoldGained(IRunState runState, Player player)`
-- `bool ShouldGainGold(IRunState runState, CombatState combatState, decimal amount, Player player)`
-- `Task AfterPlayerTurnStart(CombatState combatState, PlayerChoiceContext choiceContext, Player player)`
-- `Task AfterRoomEntered(IRunState runState, AbstractRoom room)`
+### `RelicModel`
 
-## Practical Use
+Required property:
 
-If you are deciding where to integrate:
+- `Rarity`
 
-- start with `Hook` for semantically named gameplay events
-- use Harmony when no hook matches the behavior you need
-- inspect `ModHelper` when you are registering new models or extending pools
-- use `ModManager` and `ModManifest` knowledge to debug load failures before touching gameplay code
+Important members:
 
-The appendix is most useful when it shortens the distance between a concrete question and the chapter that explains the larger pattern around that question.
+- `CanonicalVars`
+- semantic hook overrides inherited from `AbstractModel`
+- `PackedIconPath`
+- `PackedIconOutlinePath`
+- `BigIconPath`
+- `AfterObtained()`
+- `AfterRemoved()`
+- `IsAllowed(IRunState)`
+
+`Pool` requires membership in a current relic pool.
+
+### `EventModel`
+
+Important members:
+
+- `GenerateInitialOptions()`
+- `InitialDescription`
+- `IsAllowed(IRunState)`
+- `CalculateVars()`
+- `SetEventState(...)`
+- `SetEventFinished(...)`
+- `LayoutType`
+- `GetAssetPaths(IRunState)`
+- event combat and resume helpers
+
+Events are discovered by `ModelDb` but are selected through concrete act event lists or `ModelDb.AllSharedEvents`.
+
+## UI
+
+Current integration surfaces:
+
+- `NOverlayStack.Instance`
+- `NOverlayStack.Push(IOverlayScreen)`
+- `NOverlayStack.Remove(IOverlayScreen)`
+- `NModalContainer.Instance`
+- `NSubmenuStack`
+- `NCardLibrary.Create()`
+- `NRelicCollection.Create()`
+- `ActiveScreenContext`
+
+`NOverlayStack` owns overlay visuals and lifecycle. `NSubmenuStack` owns submenu navigation and is not automatically the correct visual parent.
+
+## Hooks
+
+`Hook.AfterCardPlayed` currently invokes model listeners in two passes:
+
+1. `AfterCardPlayed(PlayerChoiceContext, CardPlay)`
+2. `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)`
+
+Use the late model hook for behavior that assumes normal card resolution has completed.

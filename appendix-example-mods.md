@@ -1,61 +1,52 @@
 # Appendix B. Release Package Patterns
 
-This appendix summarizes release-payload patterns observed in working STS2 mods without treating any one project as canonical. Its purpose is to show what practical release payloads look like once the main tutorial has explained the relevant loader and packaging concepts.
+Older community archives show several layouts, but the current loader contract is determined by `v0.103.3`, not by historical package contents.
 
-## Why This Matters
-
-Observed release archives show:
-
-- more than one top-level zip layout
-- embedded manifests and, sometimes, loose manifests
-- tiny manifest-only `.pck` files and much larger Godot-heavy `.pck` files
-- code-only releases and content-bearing releases
-
-Archive shape and installed shape are not the same concern.
-
-That distinction is easy to miss because a zip file is often the first thing a user sees. For the mod author, however, the important question is not only how the archive looks on download, but what the final installed payload looks like once the files reach the game's `mods\` directory.
-
-## Common Archive Patterns
-
-### Pattern A: root payload
-
-```text
-MyMod.dll
-MyMod.pck
-```
-
-### Pattern B: named subfolder
-
-```text
-MyMod/
-  MyMod.dll
-  MyMod.pck
-```
-
-### Pattern C: installer-friendly archive
+## Current Install-Ready Pattern
 
 ```text
 mods/
   MyMod/
+    MyMod.json
     MyMod.dll
     MyMod.pck
-    mod_manifest.json
 ```
 
-All three can exist as release archives. For the local `v0.99.1` build documented here, the installed layout should still be normalized to root-level files under `mods\`.
+The external JSON is required for discovery. The DLL and PCK are required only when `has_dll` or `has_pck` is true.
 
-In other words, variety at the archive layer does not eliminate the value of consistency at the installation layer.
+## Other Archive Shapes
 
-## Reliable Takeaways
+Historical downloads may contain:
 
-1. STS2 tolerates more than one release-zip layout.
-2. A tiny `.pck` can still be a valid mod payload.
-3. A loose `mod_manifest.json` is optional for payload packaging.
-4. Matching the game's current Godot line is still the safest default for new work.
-5. A `.pck` can contain much more than icons and strings.
+- root-level DLL and PCK files
+- a named payload folder
+- a prebuilt `mods/<Name>/` tree
+- an embedded legacy `mod_manifest.json`
+- a very small metadata-only PCK
+- a large PCK containing art, localization, scenes, and source artifacts
 
-These observations matter because they keep the tutorial from overfitting to one release style while still preserving a clear recommendation for what to build and install now.
+These shapes describe how an archive was published. They do not prove that it satisfies the current loader.
 
-## Inventory Data
+## Migration Rule For Legacy Archives
 
-Repo-local unpacked inventories still exist under `examples/` for evidence review, but the tutorial itself should be built from the generalized patterns above, not from any single local project.
+To test an older DLL/PCK pair on the current build:
+
+1. create `mods/<ModId>/`
+2. add a current `<ModId>.json` manifest
+3. rename payloads to `<ModId>.dll` and `<ModId>.pck`
+4. set `has_dll` and `has_pck` accurately
+5. rebuild against the current assemblies if the DLL does not load
+6. inspect old PCK paths before assuming localization or art remains compatible
+
+An embedded legacy manifest can remain as inert pack content, but it is not a substitute for the external current manifest.
+
+## General Lessons
+
+- archive layout and installed layout are separate concerns
+- PCK size does not indicate whether a mod is valid
+- a code-heavy mod may still need a PCK for localization or icons
+- an asset-heavy mod may use little managed code
+- exact internal paths matter more than external archive names
+- old working releases are evidence for patterns, not current API authority
+
+The files under `examples/` are preserved as historical package inventories. Read their manifest observations as snapshots of older releases.

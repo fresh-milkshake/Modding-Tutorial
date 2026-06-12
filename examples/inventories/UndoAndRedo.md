@@ -1,41 +1,17 @@
-# UndoAndRedo
+# Legacy Package Inventory: UndoAndRedo
 
-Archive: `UndoAndRedo-16-1-0-4-1773092418.zip`
-
-## Extracted Tree
+Archive snapshot:
 
 ```text
-UndoAndRedo/
-  UndoAndRedo.dll
-  UndoAndRedo.pck
+UndoAndRedo.dll
+UndoAndRedo.pck
 ```
 
-## Layout Classification
+Observed characteristics:
 
-- archive shape: root payload
-- current local install implication for `v0.99.1`: normalize this archive into root-level installed files under `mods\`
+- pack version `2`
+- Godot `4.5.1`
+- legacy embedded manifest
+- very small PCK
 
-## Embedded Manifest
-
-```json
-{
-  "pck_name": "UndoAndRedo",
-  "name": "UndoAndRedo",
-  "author": "JiesiLuo",
-  "description": "Press Left/Right Arrow to undo/redo combat actions. Inspired by filippobaroni's Undo the Spire mod for STS1.",
-  "version": "1.0.0"
-}
-```
-
-## PCK Notes
-
-- pack version: `2`
-- Godot version: `4.5.1`
-- embedded `mod_manifest.json`
-- no loose manifest
-- extremely small `.pck`, effectively manifest-only
-
-## What This Example Teaches
-
-- a mod can keep almost all of its logic in the `.dll` and use the `.pck` as a very thin metadata container
-- root-payload release zips remain common even when the mod itself is otherwise cleanly packaged
+The archive demonstrates a DLL-dominant release. Current installation still requires a separate external manifest beside matching payload basenames.

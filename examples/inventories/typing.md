@@ -1,44 +1,17 @@
-# typing
+# Legacy Package Inventory: typing
 
-Archive: `typing.zip-9-0-0-3-1773063286.zip`
-
-## Extracted Tree
+Archive snapshot:
 
 ```text
-typing/
-  typing.dll
-  typing.pck
+typing.dll
+typing.pck
 ```
 
-## Layout Classification
+Observed PCK characteristics:
 
-- archive shape: root payload
-- current local install implication for `v0.99.1`: normalize this archive into root-level installed files under `mods\`
+- pack version `3`
+- Godot `4.5.1`
+- legacy developer-oriented embedded manifest
+- source and icon resources
 
-## Embedded Manifest
-
-```json
-{
-  "pck_name": "typing",
-  "name": "sts2_typing",
-  "author": "shiroi",
-  "description": "support",
-  "version": "0.0.1"
-}
-```
-
-The extracted manifest text includes inline comments in the original file, which suggests the author exported a developer-oriented manifest rather than a polished release manifest.
-
-## PCK Notes
-
-- pack version: `3`
-- Godot version: `4.5.1`
-- embedded `mod_manifest.json`
-- includes `Scripts/Entry.cs`
-- includes icon assets and `project.binary`
-
-## What This Example Teaches
-
-- manifests inside a `.pck` may contain rough author-side metadata and still exist in a working release
-- small code mods may ship minimal Godot-side structure
-- not every public STS2 mod archive is polished; your own installer instructions should be stricter than what random examples do
+The historical manifest quality illustrates why release validation should inspect the final staged payload. On `v0.103.3`, supply a valid external manifest and test all referenced signatures.
