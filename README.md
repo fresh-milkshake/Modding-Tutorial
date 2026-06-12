@@ -1,3 +1,5 @@
+![STS2 Modding Tutorial](assets/cover.png)
+
 # Slay the Spire 2 Modding Tutorial
 
 Version-aware documentation for building local C# and Godot content mods for **Slay the Spire 2 Early Access**.
