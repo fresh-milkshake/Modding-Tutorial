@@ -463,7 +463,7 @@
   <span class="md-ellipsis">
     
   
-    03. Project Skeleton, Build, And Manifests
+    03. Project Skeleton, Build, And Manifest
   
 
     
@@ -547,7 +547,7 @@
   <span class="md-ellipsis">
     
   
-    06. Content Mods, Assets, PCK, And Localization
+    06. Content Infrastructure, Assets, And Localization
   
 
     
@@ -656,10 +656,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-with-native-signals" class="md-nav__link">
+  <a href="#log-sources" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start With Native Signals
+        Log Sources
       
     </span>
   </a>
@@ -667,10 +667,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#save-paths-worth-knowing" class="md-nav__link">
+  <a href="#iteration-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Save Paths Worth Knowing
+        Iteration Loop
       
     </span>
   </a>
@@ -678,55 +678,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#fast-iteration-loop" class="md-nav__link">
+  <a href="#loader-failure-signatures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fast Iteration Loop
+        Loader Failure Signatures
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#separate-code-and-content-pipelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Separate Code And Content Pipelines
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#logging-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logging Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#high-signal-failure-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        High-Signal Failure Patterns
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="High-Signal Failure Patterns">
+    <nav class="md-nav" aria-label="Loader Failure Signatures">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mod-does-not-appear-at-all" class="md-nav__link">
+  <a href="#manifest-not-detected" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mod does not appear at all
+        Manifest not detected
       
     </span>
   </a>
@@ -734,10 +701,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#strings-missing-even-though-the-mod-loaded" class="md-nav__link">
+  <a href="#dll-or-pck-reported-missing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Strings missing even though the mod loaded
+        DLL or PCK reported missing
       
     </span>
   </a>
@@ -745,10 +712,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#card-logic-fires-but-the-card-lifecycle-breaks" class="md-nav__link">
+  <a href="#dependency-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Card logic fires but the card lifecycle breaks
+        Dependency failure
       
     </span>
   </a>
@@ -756,10 +723,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sequence-contains-no-matching-element-from-relicmodelget_pool" class="md-nav__link">
+  <a href="#initializer-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sequence contains no matching element from RelicModel.get_Pool()
+        Initializer failure
       
     </span>
   </a>
@@ -772,10 +739,104 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#version-mismatch-is-normal" class="md-nav__link">
+  <a href="#content-failure-signatures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Version Mismatch Is Normal
+        Content Failure Signatures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Content Failure Signatures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sequence-contains-no-matching-element-from-potionmodelpool-or-relicmodelpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sequence contains no matching element from PotionModel.Pool or RelicModel.Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-can-be-created-but-never-appears-naturally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model can be created but never appears naturally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing localization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-image-or-invalid-cast-to-texture2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing image or invalid cast to Texture2D
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#card-effect-runs-but-card-flow-breaks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Card effect runs but card flow breaks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#save-state-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Save-State Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#instrumentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instrumentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-regression-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Regression Matrix
       
     </span>
   </a>
@@ -841,6 +902,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -864,7 +929,7 @@
   <span class="md-ellipsis">
     
   
-    Reference
+    Applied Tutorials
   
 
     
@@ -877,6 +942,213 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Applied Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-custom-cards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Custom Cards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-custom-potions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Custom Potions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-custom-relics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Custom Relics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-custom-act-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Custom Act Events
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-custom-gui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1004,10 +1276,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-with-native-signals" class="md-nav__link">
+  <a href="#log-sources" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start With Native Signals
+        Log Sources
       
     </span>
   </a>
@@ -1015,10 +1287,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#save-paths-worth-knowing" class="md-nav__link">
+  <a href="#iteration-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Save Paths Worth Knowing
+        Iteration Loop
       
     </span>
   </a>
@@ -1026,55 +1298,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#fast-iteration-loop" class="md-nav__link">
+  <a href="#loader-failure-signatures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fast Iteration Loop
+        Loader Failure Signatures
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#separate-code-and-content-pipelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Separate Code And Content Pipelines
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#logging-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Logging Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#high-signal-failure-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        High-Signal Failure Patterns
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="High-Signal Failure Patterns">
+    <nav class="md-nav" aria-label="Loader Failure Signatures">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mod-does-not-appear-at-all" class="md-nav__link">
+  <a href="#manifest-not-detected" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mod does not appear at all
+        Manifest not detected
       
     </span>
   </a>
@@ -1082,10 +1321,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#strings-missing-even-though-the-mod-loaded" class="md-nav__link">
+  <a href="#dll-or-pck-reported-missing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Strings missing even though the mod loaded
+        DLL or PCK reported missing
       
     </span>
   </a>
@@ -1093,10 +1332,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#card-logic-fires-but-the-card-lifecycle-breaks" class="md-nav__link">
+  <a href="#dependency-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Card logic fires but the card lifecycle breaks
+        Dependency failure
       
     </span>
   </a>
@@ -1104,10 +1343,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sequence-contains-no-matching-element-from-relicmodelget_pool" class="md-nav__link">
+  <a href="#initializer-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sequence contains no matching element from RelicModel.get_Pool()
+        Initializer failure
       
     </span>
   </a>
@@ -1120,10 +1359,104 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#version-mismatch-is-normal" class="md-nav__link">
+  <a href="#content-failure-signatures" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Version Mismatch Is Normal
+        Content Failure Signatures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Content Failure Signatures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sequence-contains-no-matching-element-from-potionmodelpool-or-relicmodelpool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sequence contains no matching element from PotionModel.Pool or RelicModel.Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-can-be-created-but-never-appears-naturally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model can be created but never appears naturally
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing localization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-image-or-invalid-cast-to-texture2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing image or invalid cast to Texture2D
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#card-effect-runs-but-card-flow-breaks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Card effect runs but card flow breaks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#save-state-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Save-State Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#instrumentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instrumentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update-regression-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Regression Matrix
       
     </span>
   </a>
@@ -1156,94 +1489,98 @@
 
 
 <h1 id="08-debugging-and-fast-iteration">08. Debugging And Fast Iteration<a class="headerlink" href="#08-debugging-and-fast-iteration" title="Permanent link">&para;</a></h1>
-<h2 id="start-with-native-signals">Start With Native Signals<a class="headerlink" href="#start-with-native-signals" title="Permanent link">&para;</a></h2>
-<p>Before adding custom tooling, check:</p>
+<p>Debug STS2 mods from the loader inward. The first failed layer usually invalidates evidence from every later layer.</p>
+<h2 id="log-sources">Log Sources<a class="headerlink" href="#log-sources" title="Permanent link">&para;</a></h2>
+<p>Check both game-root and Godot user logs:</p>
 <ul>
-<li><code>sts2_stdout.log</code></li>
-<li><code>sts2_stderr.log</code></li>
-<li>the mod loader UI</li>
-<li>in-game behavior</li>
+<li><code>&lt;STS2&gt;/sts2_stdout.log</code></li>
+<li><code>&lt;STS2&gt;/sts2_stderr.log</code></li>
+<li><code>%APPDATA%/SlayTheSpire2/logs/...</code></li>
+<li>the in-game mod loader status and error display</li>
 </ul>
-<p>Also check Godot-side logs under <code>%APPDATA%\SlayTheSpire2\logs\...</code>. They can contain managed traces that never appear in <code>sts2_stdout.log</code>.</p>
-<p>These sources matter because they answer different questions. The mod loader UI tells you whether the game recognized the payload at all. The runtime logs tell you what the game attempted to load and which failures surfaced during startup or execution. In-game behavior tells you whether the intended integration point actually changed gameplay rather than merely loading without effect.</p>
-<h2 id="save-paths-worth-knowing">Save Paths Worth Knowing<a class="headerlink" href="#save-paths-worth-knowing" title="Permanent link">&para;</a></h2>
-<p>For run-state debugging on this machine, active saves can exist in both:</p>
-<ul>
-<li><code>%APPDATA%\SlayTheSpire2\steam\&lt;SteamId&gt;\...</code></li>
-<li><code>C:\Program Files (x86)\Steam\userdata\&lt;SteamAccountId&gt;\2868840\remote\...</code></li>
-</ul>
-<p>That includes modded runs under <code>modded\profile1\saves\...</code>.</p>
-<p>This matters because manual save repair can appear to fail when in reality only one of the mirrored save locations was edited.</p>
-<h2 id="fast-iteration-loop">Fast Iteration Loop<a class="headerlink" href="#fast-iteration-loop" title="Permanent link">&para;</a></h2>
-<p>Use this loop:</p>
+<p>The root logs can be stale if the game has not recently written them. Compare timestamps before treating their version header as current.</p>
+<h2 id="iteration-loop">Iteration Loop<a class="headerlink" href="#iteration-loop" title="Permanent link">&para;</a></h2>
 <ol>
-<li>edit managed code</li>
-<li>rebuild the <code>.dll</code></li>
-<li>rebuild or refresh the <code>.pck</code> if assets or localization changed</li>
-<li>copy the final payload into <code>mods\</code></li>
-<li>launch the game</li>
-<li>inspect logs immediately if the mod does not appear or does not behave as expected</li>
+<li>close the game when replacing loaded DLLs or PCKs</li>
+<li>build the DLL against the current installed assemblies</li>
+<li>rebuild the PCK only when resources changed, but never reuse a stale pack accidentally</li>
+<li>recreate the staged mod directory from known outputs</li>
+<li>copy the whole directory to <code>&lt;STS2&gt;/mods/&lt;ModId&gt;/</code></li>
+<li>launch and inspect loader messages before testing gameplay</li>
+<li>test the smallest path that exercises the change</li>
 </ol>
-<p>Do not skip <code>.pck</code> refresh when the change touched assets, localization, or Godot import outputs.</p>
-<p>The point of this loop is to keep code and content changes synchronized. STS2 mods commonly split behavior between a managed assembly and a packed Godot payload. If one of those layers is refreshed and the other is stale, the resulting symptom can be misleading.</p>
-<h2 id="separate-code-and-content-pipelines">Separate Code And Content Pipelines<a class="headerlink" href="#separate-code-and-content-pipelines" title="Permanent link">&para;</a></h2>
-<p>Treat these as different failure domains:</p>
+<p>Staging should be reproducible. Incrementally copying individual files leaves obsolete resources and manifests behind.</p>
+<h2 id="loader-failure-signatures">Loader Failure Signatures<a class="headerlink" href="#loader-failure-signatures" title="Permanent link">&para;</a></h2>
+<h3 id="manifest-not-detected">Manifest not detected<a class="headerlink" href="#manifest-not-detected" title="Permanent link">&para;</a></h3>
+<p>Check:</p>
 <ul>
-<li><code>.dll</code> pipeline: compile, references, initializer, Harmony patches</li>
-<li><code>.pck</code> pipeline: manifest, assets, localization, import artifacts</li>
+<li>the file has a <code>.json</code> extension below <code>&lt;STS2&gt;/mods</code></li>
+<li>the JSON is valid</li>
+<li><code>id</code> is present</li>
+<li>player consent and disabled-mod state permit loading</li>
 </ul>
-<p>Code can compile while strings fail to load. Assets can exist while initialization never runs.</p>
-<p>A useful debugging habit is to ask which pipeline owns the current failure before trying to fix the failure itself.</p>
-<h2 id="logging-strategy">Logging Strategy<a class="headerlink" href="#logging-strategy" title="Permanent link">&para;</a></h2>
-<p>Add explicit log points around:</p>
+<h3 id="dll-or-pck-reported-missing">DLL or PCK reported missing<a class="headerlink" href="#dll-or-pck-reported-missing" title="Permanent link">&para;</a></h3>
+<p>The loader resolves payloads beside the manifest using the exact <code>id</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;manifest directory&gt;/&lt;id&gt;.dll
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>&lt;manifest directory&gt;/&lt;id&gt;.pck
+</code></pre></div>
+<p>Check <code>has_dll</code>, <code>has_pck</code>, case, and basenames.</p>
+<h3 id="dependency-failure">Dependency failure<a class="headerlink" href="#dependency-failure" title="Permanent link">&para;</a></h3>
+<p>Check that every dependency string equals another manifest's <code>id</code>. Display names and assembly names are not dependency identifiers. Inspect logs for missing or circular chains.</p>
+<h3 id="initializer-failure">Initializer failure<a class="headerlink" href="#initializer-failure" title="Permanent link">&para;</a></h3>
+<p>Check:</p>
 <ul>
-<li>mod initialization</li>
-<li>patch registration</li>
-<li>content registration</li>
-<li>localization loading</li>
-<li>the specific gameplay event you are intercepting</li>
+<li>the attributed type is present in the loaded DLL</li>
+<li>the named method exists and is static</li>
+<li>registration does not enumerate a pool before all additions are complete</li>
+<li>the exception is not wrapped by reflection in <code>TargetInvocationException</code></li>
 </ul>
-<p>This is not redundant with game logging. The game can tell you that a payload loaded, but only the mod can tell you which branch of its own logic executed, which registration completed, or whether a key patch site was reached.</p>
-<h2 id="high-signal-failure-patterns">High-Signal Failure Patterns<a class="headerlink" href="#high-signal-failure-patterns" title="Permanent link">&para;</a></h2>
-<h3 id="mod-does-not-appear-at-all">Mod does not appear at all<a class="headerlink" href="#mod-does-not-appear-at-all" title="Permanent link">&para;</a></h3>
-<p>Usually one of:</p>
+<p>If no initializer exists, remember that the loader automatically calls Harmony <code>PatchAll</code>; an unexpected patch can therefore originate from an assembly that appears to have no entry point.</p>
+<h2 id="content-failure-signatures">Content Failure Signatures<a class="headerlink" href="#content-failure-signatures" title="Permanent link">&para;</a></h2>
+<h3 id="sequence-contains-no-matching-element-from-potionmodelpool-or-relicmodelpool"><code>Sequence contains no matching element</code> from <code>PotionModel.Pool</code> or <code>RelicModel.Pool</code><a class="headerlink" href="#sequence-contains-no-matching-element-from-potionmodelpool-or-relicmodelpool" title="Permanent link">&para;</a></h3>
+<p>The model exists but belongs to no current pool. Register it with <code>ModHelper.AddModelToPool</code> before initialization freezes the pool.</p>
+<h3 id="model-can-be-created-but-never-appears-naturally">Model can be created but never appears naturally<a class="headerlink" href="#model-can-be-created-but-never-appears-naturally" title="Permanent link">&para;</a></h3>
+<p>Discovery and selection are separate. Verify pool membership for cards, potions, and relics. For events, verify the target act or shared event list is patched.</p>
+<h3 id="missing-localization">Missing localization<a class="headerlink" href="#missing-localization" title="Permanent link">&para;</a></h3>
+<p>Check the PCK for:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&lt;id&gt;/localization/&lt;language&gt;/&lt;table&gt;.json
+</code></pre></div>
+<p>Then check the model slug, table name, flat JSON key, and language code. The manifest ID controls the prefix.</p>
+<h3 id="missing-image-or-invalid-cast-to-texture2d">Missing image or invalid cast to <code>Texture2D</code><a class="headerlink" href="#missing-image-or-invalid-cast-to-texture2d" title="Permanent link">&para;</a></h3>
+<p>Check whether the model expects a PNG or a <code>.tres</code> texture resource. Potion art uses a fixed atlas-resource path; placing only a namespaced PNG does not satisfy that lookup.</p>
+<h3 id="card-effect-runs-but-card-flow-breaks">Card effect runs but card flow breaks<a class="headerlink" href="#card-effect-runs-but-card-flow-breaks" title="Permanent link">&para;</a></h3>
+<p>The effect is attached too early or owns the wrong async chain. Prefer the model's <code>OnPlay</code> for a custom card and <code>AfterCardPlayedLate</code> for external post-resolution behavior.</p>
+<h2 id="save-state-troubleshooting">Save-State Troubleshooting<a class="headerlink" href="#save-state-troubleshooting" title="Permanent link">&para;</a></h2>
+<p>Active saves may exist under both:</p>
 <ul>
-<li>wrong install path</li>
-<li>missing or malformed <code>&lt;ModId&gt;.json</code></li>
-<li>missing or malformed payload manifest</li>
-<li>bad <code>pck_name</code></li>
-<li>broken initializer target</li>
-<li>version mismatch</li>
+<li><code>%APPDATA%/SlayTheSpire2/steam/&lt;SteamId&gt;/...</code></li>
+<li><code>&lt;Steam&gt;/userdata/&lt;AccountId&gt;/2868840/remote/...</code></li>
 </ul>
-<p>This is the classic "nothing happened" category, and it should usually be debugged from the outside inward: installation shape, metadata, payload contract, initializer, then version assumptions.</p>
-<h3 id="strings-missing-even-though-the-mod-loaded">Strings missing even though the mod loaded<a class="headerlink" href="#strings-missing-even-though-the-mod-loaded" title="Permanent link">&para;</a></h3>
-<p>Usually one of:</p>
+<p>Modded runs use modded profile save paths. Before editing or deleting a save, close the game and preserve both copies. Cloud synchronization can restore the copy that was not changed.</p>
+<p>Custom models serialize by model ID through the game's save types. Renaming a model class changes its generated entry ID unless compatibility code maps the old ID. Treat class names as persistent data once a release can appear in a save.</p>
+<h2 id="instrumentation">Instrumentation<a class="headerlink" href="#instrumentation" title="Permanent link">&para;</a></h2>
+<p>Log high-value boundaries:</p>
 <ul>
-<li>stale <code>.pck</code></li>
-<li>wrong internal localization path</li>
-<li>wrong language code</li>
-<li>wrong table or key names</li>
+<li>initializer entered and completed</li>
+<li>each pool registration</li>
+<li>each Harmony patch group</li>
+<li>event list augmentation</li>
+<li>GUI controller attachment</li>
+<li>model effect entry with owner and state identifiers</li>
 </ul>
-<p>This is the classic "the code loaded but the content layer did not" category.</p>
-<h3 id="card-logic-fires-but-the-card-lifecycle-breaks">Card logic fires but the card lifecycle breaks<a class="headerlink" href="#card-logic-fires-but-the-card-lifecycle-breaks" title="Permanent link">&para;</a></h3>
-<p>Usually one of:</p>
-<ul>
-<li>patching too early in the play flow</li>
-<li>wrapping the wrong <code>OnPlay(...)</code> task chain</li>
-</ul>
-<p>Move post-resolution behavior to a safer hook such as <code>AfterCardPlayedLate</code> unless you truly need to own the card's internal play logic.</p>
-<p>This is a good reminder that a gameplay effect and a gameplay lifecycle are not the same thing.</p>
-<h3 id="sequence-contains-no-matching-element-from-relicmodelget_pool"><code>Sequence contains no matching element</code> from <code>RelicModel.get_Pool()</code><a class="headerlink" href="#sequence-contains-no-matching-element-from-relicmodelget_pool" title="Permanent link">&para;</a></h3>
-<p>Usually means the relic is being rendered in inspect or hover UI without a valid pool association. Fix the pool path before chasing unrelated UI code.</p>
-<p>This is one of the highest-value error signatures because it collapses a large search space into a specific content contract.</p>
-<h2 id="version-mismatch-is-normal">Version Mismatch Is Normal<a class="headerlink" href="#version-mismatch-is-normal" title="Permanent link">&para;</a></h2>
-<p>Suspect a version mismatch when:</p>
-<ul>
-<li>a previously valid signature no longer resolves</li>
-<li>a hook changes shape</li>
-<li>asset or localization conventions shift after a game update</li>
-</ul>
-<p>STS2 is still in Early Access. Revalidation is part of normal maintenance.</p>
+<p>Avoid per-frame logs. They hide the first meaningful error and make UI debugging harder.</p>
+<h2 id="update-regression-matrix">Update Regression Matrix<a class="headerlink" href="#update-regression-matrix" title="Permanent link">&para;</a></h2>
+<p>After a game update, test:</p>
+<ol>
+<li>loader detection</li>
+<li>new run creation</li>
+<li>every custom content type through natural generation</li>
+<li>hover, inspect, and library views</li>
+<li>save and reload with custom content owned</li>
+<li>event entry and completion</li>
+<li>GUI open, close, focus, and tooltip ordering</li>
+</ol>
+<p>This matrix detects semantic drift that a successful build cannot prove absent.</p>
 
 
 
