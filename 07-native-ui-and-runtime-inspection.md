@@ -1,102 +1,100 @@
 # 07. Native UI And Runtime Inspection
 
-## When This Matters
+STS2 UI integration is primarily a hierarchy problem. A screen can have a lifecycle owner, a visual parent, a focus context, and a tooltip host that are related but not identical.
 
-Most mods only need data, hooks, and packaging. This chapter matters when you want to reuse native STS2 UI screens or embed modded UI into the game's existing runtime hierarchy.
+## Current Native Roles
 
-This is a distinct class of work. Once you move from gameplay rules into native UI reuse, the question stops being only which method should be patched and becomes which runtime branch owns geometry, layering, navigation, and tooltip behavior. STS2's UI is structured enough that those responsibilities are often separate.
+Important types in `v0.103.3` include:
 
-## Relevant Native Types
+- `NOverlayStack`: run-time overlay host and stack
+- `NModalContainer`: single modal host with a dimming backstop
+- `NSubmenuStack`: submenu lifecycle and back-navigation owner
+- `NSubmenu`: base class for native submenu screens
+- `NCardLibrary`: reusable native card library screen
+- `NRelicCollection`: reusable native relic collection screen
+- `NHoverTipSet`: tooltip presentation layer
+- `ActiveScreenContext`: focus ownership for the active screen
 
-For the current build, the most useful UI types are:
+The names describe responsibilities, not interchangeable containers.
 
-- `NOverlayStack`
-- `NModalContainer`
-- `NHoverTipSet`
-- `NSubmenu`
-- `NSubmenuStack`
-- `NCardLibrary`
-- `NCardLibraryGrid`
-- `NRelicCollection`
-- `NRelicCollectionEntry`
+## Overlay Contract
 
-These types are useful not because every mod needs them, but because they reveal the architecture of the native UI. `NOverlayStack` and `NModalContainer` describe host layers. `NSubmenu` and `NSubmenuStack` describe lifecycle and navigation. `NCardLibrary` and `NRelicCollection` describe concrete reusable screens. Once those roles are separated, many UI regressions become easier to reason about.
+`NOverlayStack.Instance` resolves from the active `NRun`. Its public contract is based on `IOverlayScreen`:
 
-## Visual Host vs Lifecycle Host
+```csharp
+public interface IOverlayScreen : IScreenContext
+{
+    NetScreenType ScreenType { get; }
+    bool UseSharedBackstop { get; }
+    void AfterOverlayOpened();
+    void AfterOverlayClosed();
+    void AfterOverlayShown();
+    void AfterOverlayHidden();
+}
+```
 
-These are not the same concern.
+`Push` adds the screen to the visual tree, hides the previous overlay, moves the shared backstop, updates active focus context, and emits a stack change signal. `Remove` reverses that lifecycle but does not itself free arbitrary custom nodes. A custom overlay should release itself in `AfterOverlayClosed`.
 
-Visual host candidates:
+## Visual Host And Lifecycle Owner
 
-- `NOverlayStack`
-- sometimes `NModalContainer`
+`NSubmenuStack` is not a safe default visual parent. It owns open, close, push, pop, and back-navigation semantics for `NSubmenu` instances. Native screens can know their stack while living under a different control that supplies the expected geometry.
 
-Lifecycle and navigation owners:
+This explains a common failure pattern:
 
-- `NSubmenuStack`
-- `NMainMenuSubmenuStack`
+- adding a screen only to a submenu stack gives it lifecycle but the wrong coordinate root
+- adding a native submenu only to an overlay gives it pixels but no native back-navigation lifecycle
 
-Safe rule:
+Inspect the vanilla parent chain of the screen you are reusing and reproduce the division of responsibility rather than forcing both roles onto one node.
 
-- treat `NSubmenuStack` as lifecycle and back-navigation ownership
-- do not assume it is the correct visual parent for submenu geometry
+## Reusing Native Libraries
 
-This distinction is the core idea of the chapter. A control can participate in one system for visibility and back-navigation while being rendered inside another system for coordinate space and layering. Mods that ignore this split often solve one problem by creating another: they fix navigation but break geometry, or fix visibility but break tooltips.
+`NCardLibrary` and `NRelicCollection` are concrete native screens with their own scene geometry. Their `Create` methods instantiate scenes from the game PCK. They expect submenu lifecycle, focus handling, preload state, and the same visual coordinate system used by the native compendium.
 
-## Overlay And Tooltip Contract
+Before reusing one:
 
-For native picker-style integrations, the current safe baseline is:
+1. inspect its `Create`, `_Ready`, open, shown, hidden, and close methods
+2. inspect where the vanilla caller attaches it
+3. inspect which `NSubmenuStack` receives it
+4. inspect asset preloading performed before creation
+5. verify tooltip hosts remain above the screen and its dimming layer
 
-- use a full-screen runtime UI branch that matches the game's own coordinate space
-- keep tooltip hosts above the custom picker host
-- keep custom dimming and input blocking below tooltip hosts
-- keep native submenu screens stack-aware but not automatically parented under the stack
+Do not copy only the `Create()` call. Native scene creation is usually one step in a larger protocol.
 
-`NOverlayStack` is the primary visual host candidate for this style of work.
+## Tooltip And Layer Ordering
 
-The reason is structural rather than stylistic. Tooltip systems, modal branches, and overlay branches all carry assumptions about sibling order and coordinate roots. If a mod inserts a screen into the wrong branch, the result may still render, but it will render under the wrong rules. That is why apparent layout bugs in STS2 UI work are often hierarchy bugs.
+Tooltips often render in a sibling layer rather than inside the hovered control. A custom full-screen backdrop placed above that sibling can make hover logic run while hiding the actual tooltip.
 
-## Reusing Native Library Screens
+The safe ordering is:
 
-`NCardLibrary` and `NRelicCollection` are reusable native screens, but they need the correct stack and host relationship.
+1. native room or menu content
+2. custom dimming and input backstop
+3. custom screen content
+4. native tooltip and cursor layers
 
-Typical call sequence:
+Exact node names can change. Verify the live tree instead of hardcoding an assumed sibling index.
 
-1. create the native screen
-2. initialize it with the current run state if required
-3. assign a submenu stack with `SetStack(...)`
-4. attach the screen to a valid visual host
-5. push the screen through the stack
-6. show it
+## Coordinate Roots
 
-Safe rule:
+Controls using full-rect anchors inherit the rectangle of their visual parent. Moving a screen between a viewport-sized host and a content-sized submenu container can shift or clip it even when all child anchors are correct.
 
-- the screen should know its stack
-- the stack should own lifecycle
-- the screen should still live in the correct visual branch
+When geometry is wrong, log:
 
-This is a good example of STS2's division of responsibility. A screen does not become self-sufficient merely because it was created successfully. It still expects the surrounding runtime context to provide navigation semantics, visibility transitions, and an appropriate visual host.
+- parent path
+- global position
+- size
+- anchor values
+- effective viewport size
+- canvas layer and sibling index
 
-## Common Failure Modes
-
-These failures are worth documenting because they are easy to trigger:
-
-- wrong host parent causes shifted geometry
-- backdrop above tooltip hosts hides native hover tips
-- treating `NSubmenuStack` as the screen's visual parent can make the screen disappear
-- detached top-level overlays can break layering even when they appear to fix z-order
-
-These are not unrelated bugs. They are different expressions of the same underlying rule: native UI components tend to assume a particular relationship between geometry, lifecycle, and layering. When a mod places a correct component into the wrong runtime context, the failure often appears one layer away from the actual mistake.
+Change the hierarchy only after these values identify the incorrect coordinate root.
 
 ## Runtime Inspection Workflow
 
-For UI bugs, use this order:
+1. decompile the screen and its native caller
+2. inspect the packed scene path
+3. open the relevant vanilla screen in game
+4. inspect the live parent chain and sibling order
+5. compare focus and tooltip behavior
+6. reproduce the smallest valid lifecycle in the mod
 
-1. inspect the types and lifecycle in decompiled metadata
-2. inspect the live runtime tree and parent chain
-3. confirm sibling order around overlay, modal, and tooltip hosts
-4. only then change hierarchy or layout code
-
-Local debug-hook tooling can help here, but it is an optional research aid, not a tutorial prerequisite.
-
-This order is intentionally conservative. UI debugging becomes expensive very quickly when nodes are moved around before it is clear which system currently owns them.
+Chapter 14 applies this model to a self-contained `IOverlayScreen` that does not depend on a custom `.tscn` file.

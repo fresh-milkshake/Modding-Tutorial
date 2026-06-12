@@ -1,116 +1,129 @@
 # 08. Debugging And Fast Iteration
 
-## Start With Native Signals
+Debug STS2 mods from the loader inward. The first failed layer usually invalidates evidence from every later layer.
 
-Before adding custom tooling, check:
+## Log Sources
 
-- `sts2_stdout.log`
-- `sts2_stderr.log`
-- the mod loader UI
-- in-game behavior
+Check both game-root and Godot user logs:
 
-Also check Godot-side logs under `%APPDATA%\SlayTheSpire2\logs\...`. They can contain managed traces that never appear in `sts2_stdout.log`.
+- `<STS2>/sts2_stdout.log`
+- `<STS2>/sts2_stderr.log`
+- `%APPDATA%/SlayTheSpire2/logs/...`
+- the in-game mod loader status and error display
 
-These sources matter because they answer different questions. The mod loader UI tells you whether the game recognized the payload at all. The runtime logs tell you what the game attempted to load and which failures surfaced during startup or execution. In-game behavior tells you whether the intended integration point actually changed gameplay rather than merely loading without effect.
+The root logs can be stale if the game has not recently written them. Compare timestamps before treating their version header as current.
 
-## Save Paths Worth Knowing
+## Iteration Loop
 
-For run-state debugging on this machine, active saves can exist in both:
+1. close the game when replacing loaded DLLs or PCKs
+2. build the DLL against the current installed assemblies
+3. rebuild the PCK only when resources changed, but never reuse a stale pack accidentally
+4. recreate the staged mod directory from known outputs
+5. copy the whole directory to `<STS2>/mods/<ModId>/`
+6. launch and inspect loader messages before testing gameplay
+7. test the smallest path that exercises the change
 
-- `%APPDATA%\SlayTheSpire2\steam\<SteamId>\...`
-- `C:\Program Files (x86)\Steam\userdata\<SteamAccountId>\2868840\remote\...`
+Staging should be reproducible. Incrementally copying individual files leaves obsolete resources and manifests behind.
 
-That includes modded runs under `modded\profile1\saves\...`.
+## Loader Failure Signatures
 
-This matters because manual save repair can appear to fail when in reality only one of the mirrored save locations was edited.
+### Manifest not detected
 
-## Fast Iteration Loop
+Check:
 
-Use this loop:
+- the file has a `.json` extension below `<STS2>/mods`
+- the JSON is valid
+- `id` is present
+- player consent and disabled-mod state permit loading
 
-1. edit managed code
-2. rebuild the `.dll`
-3. rebuild or refresh the `.pck` if assets or localization changed
-4. copy the final payload into `mods\`
-5. launch the game
-6. inspect logs immediately if the mod does not appear or does not behave as expected
+### DLL or PCK reported missing
 
-Do not skip `.pck` refresh when the change touched assets, localization, or Godot import outputs.
+The loader resolves payloads beside the manifest using the exact `id`:
 
-The point of this loop is to keep code and content changes synchronized. STS2 mods commonly split behavior between a managed assembly and a packed Godot payload. If one of those layers is refreshed and the other is stale, the resulting symptom can be misleading.
+```text
+<manifest directory>/<id>.dll
+<manifest directory>/<id>.pck
+```
 
-## Separate Code And Content Pipelines
+Check `has_dll`, `has_pck`, case, and basenames.
 
-Treat these as different failure domains:
+### Dependency failure
 
-- `.dll` pipeline: compile, references, initializer, Harmony patches
-- `.pck` pipeline: manifest, assets, localization, import artifacts
+Check that every dependency string equals another manifest's `id`. Display names and assembly names are not dependency identifiers. Inspect logs for missing or circular chains.
 
-Code can compile while strings fail to load. Assets can exist while initialization never runs.
+### Initializer failure
 
-A useful debugging habit is to ask which pipeline owns the current failure before trying to fix the failure itself.
+Check:
 
-## Logging Strategy
+- the attributed type is present in the loaded DLL
+- the named method exists and is static
+- registration does not enumerate a pool before all additions are complete
+- the exception is not wrapped by reflection in `TargetInvocationException`
 
-Add explicit log points around:
+If no initializer exists, remember that the loader automatically calls Harmony `PatchAll`; an unexpected patch can therefore originate from an assembly that appears to have no entry point.
 
-- mod initialization
-- patch registration
-- content registration
-- localization loading
-- the specific gameplay event you are intercepting
+## Content Failure Signatures
 
-This is not redundant with game logging. The game can tell you that a payload loaded, but only the mod can tell you which branch of its own logic executed, which registration completed, or whether a key patch site was reached.
+### `Sequence contains no matching element` from `PotionModel.Pool` or `RelicModel.Pool`
 
-## High-Signal Failure Patterns
+The model exists but belongs to no current pool. Register it with `ModHelper.AddModelToPool` before initialization freezes the pool.
 
-### Mod does not appear at all
+### Model can be created but never appears naturally
 
-Usually one of:
+Discovery and selection are separate. Verify pool membership for cards, potions, and relics. For events, verify the target act or shared event list is patched.
 
-- wrong install path
-- missing or malformed `<ModId>.json`
-- missing or malformed payload manifest
-- bad `pck_name`
-- broken initializer target
-- version mismatch
+### Missing localization
 
-This is the classic "nothing happened" category, and it should usually be debugged from the outside inward: installation shape, metadata, payload contract, initializer, then version assumptions.
+Check the PCK for:
 
-### Strings missing even though the mod loaded
+```text
+<id>/localization/<language>/<table>.json
+```
 
-Usually one of:
+Then check the model slug, table name, flat JSON key, and language code. The manifest ID controls the prefix.
 
-- stale `.pck`
-- wrong internal localization path
-- wrong language code
-- wrong table or key names
+### Missing image or invalid cast to `Texture2D`
 
-This is the classic "the code loaded but the content layer did not" category.
+Check whether the model expects a PNG or a `.tres` texture resource. Potion art uses a fixed atlas-resource path; placing only a namespaced PNG does not satisfy that lookup.
 
-### Card logic fires but the card lifecycle breaks
+### Card effect runs but card flow breaks
 
-Usually one of:
+The effect is attached too early or owns the wrong async chain. Prefer the model's `OnPlay` for a custom card and `AfterCardPlayedLate` for external post-resolution behavior.
 
-- patching too early in the play flow
-- wrapping the wrong `OnPlay(...)` task chain
+## Save-State Troubleshooting
 
-Move post-resolution behavior to a safer hook such as `AfterCardPlayedLate` unless you truly need to own the card's internal play logic.
+Active saves may exist under both:
 
-This is a good reminder that a gameplay effect and a gameplay lifecycle are not the same thing.
+- `%APPDATA%/SlayTheSpire2/steam/<SteamId>/...`
+- `<Steam>/userdata/<AccountId>/2868840/remote/...`
 
-### `Sequence contains no matching element` from `RelicModel.get_Pool()`
+Modded runs use modded profile save paths. Before editing or deleting a save, close the game and preserve both copies. Cloud synchronization can restore the copy that was not changed.
 
-Usually means the relic is being rendered in inspect or hover UI without a valid pool association. Fix the pool path before chasing unrelated UI code.
+Custom models serialize by model ID through the game's save types. Renaming a model class changes its generated entry ID unless compatibility code maps the old ID. Treat class names as persistent data once a release can appear in a save.
 
-This is one of the highest-value error signatures because it collapses a large search space into a specific content contract.
+## Instrumentation
 
-## Version Mismatch Is Normal
+Log high-value boundaries:
 
-Suspect a version mismatch when:
+- initializer entered and completed
+- each pool registration
+- each Harmony patch group
+- event list augmentation
+- GUI controller attachment
+- model effect entry with owner and state identifiers
 
-- a previously valid signature no longer resolves
-- a hook changes shape
-- asset or localization conventions shift after a game update
+Avoid per-frame logs. They hide the first meaningful error and make UI debugging harder.
 
-STS2 is still in Early Access. Revalidation is part of normal maintenance.
+## Update Regression Matrix
+
+After a game update, test:
+
+1. loader detection
+2. new run creation
+3. every custom content type through natural generation
+4. hover, inspect, and library views
+5. save and reload with custom content owned
+6. event entry and completion
+7. GUI open, close, focus, and tooltip ordering
+
+This matrix detects semantic drift that a successful build cannot prove absent.
