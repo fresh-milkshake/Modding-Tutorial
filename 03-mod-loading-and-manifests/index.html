@@ -592,6 +592,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#versioned-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioned Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -795,6 +806,8 @@
       
         
       
+        
+      
     
     
     
@@ -967,6 +980,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1241,6 +1282,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#versioned-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioned Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1322,18 +1374,19 @@
 </code></pre></div>
 <p><code>Private=false</code> prevents copies of game-owned assemblies from being staged beside the mod DLL. The running game already supplies them.</p>
 <h2 id="one-external-manifest">One External Manifest<a class="headerlink" href="#one-external-manifest" title="Permanent link">&para;</a></h2>
-<p><code>v0.103.3</code> uses one manifest file discovered below <code>&lt;STS2&gt;/mods</code>. Name it <code>&lt;ModId&gt;.json</code> and place it beside the declared payloads:</p>
+<p><code>v0.107.1</code> uses one manifest file discovered below <code>&lt;STS2&gt;/mods</code>. Name it <code>&lt;ModId&gt;.json</code> and place it beside the declared payloads:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FieldNotes&quot;</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Field Notes&quot;</span><span class="p">,</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Example Author&quot;</span><span class="p">,</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Adds an example card, potion, relic, event, and overlay.&quot;</span><span class="p">,</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nt">&quot;has_pck&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nt">&quot;has_dll&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">&quot;affects_gameplay&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nt">&quot;min_game_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.107.1&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nt">&quot;has_pck&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nt">&quot;has_dll&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nt">&quot;affects_gameplay&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
 </code></pre></div>
 <p>Current fields:</p>
 <table>
@@ -1374,7 +1427,11 @@
 </tr>
 <tr>
 <td><code>dependencies</code></td>
-<td>Manifest IDs that must load first</td>
+<td>Objects with a dependency <code>id</code> and optional <code>min_version</code></td>
+</tr>
+<tr>
+<td><code>min_game_version</code></td>
+<td>Minimum supported game semantic version</td>
 </tr>
 <tr>
 <td><code>affects_gameplay</code></td>
@@ -1391,26 +1448,30 @@
 <p>The external manifest filename does not technically define identity, but matching it to the ID removes ambiguity and avoids accidental parsing of unrelated JSON files. Because every <code>.json</code> below <code>mods/</code> is treated as a possible manifest, do not store settings or arbitrary JSON beside installed mods unless they are outside the scanned tree or use a different extension.</p>
 <h2 id="initializer-and-registration">Initializer And Registration<a class="headerlink" href="#initializer-and-registration" title="Permanent link">&para;</a></h2>
 <p>Use an explicit initializer when the mod registers content, subscribes hooks, or needs startup logging:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">using</span><span class="w"> </span><span class="nn">HarmonyLib</span><span class="p">;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Modding</span><span class="p">;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Models.CardPools</span><span class="p">;</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Models.PotionPools</span><span class="p">;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Models.RelicPools</span><span class="p">;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="na">[ModInitializer(nameof(Initialize))]</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ModEntry</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">{</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Initialize</span><span class="p">()</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="n">ModHelper</span><span class="p">.</span><span class="n">AddModelToPool</span><span class="o">&lt;</span><span class="n">ColorlessCardPool</span><span class="p">,</span><span class="w"> </span><span class="n">FieldNotesCard</span><span class="o">&gt;</span><span class="p">();</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="n">ModHelper</span><span class="p">.</span><span class="n">AddModelToPool</span><span class="o">&lt;</span><span class="n">SharedPotionPool</span><span class="p">,</span><span class="w"> </span><span class="n">BottledInsightPotion</span><span class="o">&gt;</span><span class="p">();</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">        </span><span class="n">ModHelper</span><span class="p">.</span><span class="n">AddModelToPool</span><span class="o">&lt;</span><span class="n">SharedRelicPool</span><span class="p">,</span><span class="w"> </span><span class="n">SurveyorLensRelic</span><span class="o">&gt;</span><span class="p">();</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Harmony</span><span class="p">(</span><span class="s">&quot;example.fieldnotes&quot;</span><span class="p">).</span><span class="n">PatchAll</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">ModEntry</span><span class="p">).</span><span class="n">Assembly</span><span class="p">);</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">using</span><span class="w"> </span><span class="nn">FieldNotes.Cards</span><span class="p">;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">using</span><span class="w"> </span><span class="nn">FieldNotes.Potions</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">using</span><span class="w"> </span><span class="nn">FieldNotes.Relics</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">using</span><span class="w"> </span><span class="nn">HarmonyLib</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Modding</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Models.CardPools</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Models.PotionPools</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">using</span><span class="w"> </span><span class="nn">MegaCrit.Sts2.Core.Models.RelicPools</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="na">[ModInitializer(nameof(Initialize))]</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ModEntry</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">{</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Initialize</span><span class="p">()</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">        </span><span class="n">ModHelper</span><span class="p">.</span><span class="n">AddModelToPool</span><span class="o">&lt;</span><span class="n">ColorlessCardPool</span><span class="p">,</span><span class="w"> </span><span class="n">FieldNotesCard</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">        </span><span class="n">ModHelper</span><span class="p">.</span><span class="n">AddModelToPool</span><span class="o">&lt;</span><span class="n">SharedPotionPool</span><span class="p">,</span><span class="w"> </span><span class="n">BottledInsightPotion</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">        </span><span class="n">ModHelper</span><span class="p">.</span><span class="n">AddModelToPool</span><span class="o">&lt;</span><span class="n">SharedRelicPool</span><span class="p">,</span><span class="w"> </span><span class="n">SurveyorLensRelic</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Harmony</span><span class="p">(</span><span class="s">&quot;example.fieldnotes&quot;</span><span class="p">).</span><span class="n">PatchAll</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="n">ModEntry</span><span class="p">).</span><span class="n">Assembly</span><span class="p">);</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="p">}</span>
 </code></pre></div>
 <p>Pool registration must happen before the game freezes pool contents. <code>ModHelper</code> throws when a model is added after initialization.</p>
+<p>The three model classes are defined in chapters 10-12. Add those classes before building this combined initializer; the bootstrap in chapter 5 can be used independently for a behavior-only mod.</p>
 <h2 id="build-and-stage">Build And Stage<a class="headerlink" href="#build-and-stage" title="Permanent link">&para;</a></h2>
 <p>The expected output is:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>build/mods/FieldNotes/
@@ -1425,6 +1486,19 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>&lt;STS2&gt;/mods/FieldNotes/
 </code></pre></div>
 <p>Root-level manifests and payloads still work because discovery is recursive from <code>mods/</code>, but per-mod directories isolate filenames, simplify removal, and match the loader's directory ownership model.</p>
+<h2 id="versioned-dependencies">Versioned Dependencies<a class="headerlink" href="#versioned-dependencies" title="Permanent link">&para;</a></h2>
+<p>Use dependency objects for new releases:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RequiredLibrary&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;min_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.0&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>This fragment illustrates the dependency field; the standalone FieldNotes example needs no library and retains <code>dependencies: []</code>. Use the dependency's manifest ID, not its display name or DLL filename.</p>
+<p><code>min_version</code> may be omitted when no minimum is required. If specified, the dependency must declare a parseable semantic version at least that high. Missing, invalid, or lower dependency versions produce distinct loader errors. Keep the mod's own <code>version</code> parseable even when it has no dependencies.</p>
+<p><code>min_game_version</code> checks the installed game version. An absent value currently logs a warning and assumes compatibility; an invalid value or a requirement above the installed version prevents loading. This minimum is not proof of compatibility with every later release.</p>
+<p>The older array of strings is temporarily migrated by <code>ModManifest.ReadFromStream</code>, but produces a migration diagnostic and is scheduled for removal. Publish object entries instead.</p>
+<p>See <a href="../09-packaging-installing-and-verifying/#manifest-checklist">release validation</a> and <a href="../08-debugging-and-fast-iteration/#version-and-workshop-failures">version errors</a>.</p>
 
 
 

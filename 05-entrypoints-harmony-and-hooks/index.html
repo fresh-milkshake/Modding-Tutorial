@@ -823,6 +823,8 @@
       
         
       
+        
+      
     
     
     
@@ -995,6 +997,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1337,7 +1367,7 @@
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
 </code></pre></div>
-<p>An explicit initializer is preferable even though <code>v0.103.3</code> falls back to automatic <code>Harmony.PatchAll</code> when no initializer exists. Registration, hook subscriptions, compatibility checks, and startup logging need a deterministic location.</p>
+<p>An explicit initializer is preferable even though <code>v0.107.1</code> falls back to automatic <code>Harmony.PatchAll</code> when no initializer exists. Registration, hook subscriptions, compatibility checks, and startup logging need a deterministic location.</p>
 <h2 id="three-integration-levels">Three Integration Levels<a class="headerlink" href="#three-integration-levels" title="Permanent link">&para;</a></h2>
 <p>Use the least invasive level that expresses the feature:</p>
 <ol>
@@ -1357,10 +1387,12 @@
 </ul>
 <p>Read the exact signature and inspect at least one vanilla caller. The position of a hook in an async command chain determines whether visual cleanup and state mutation have already completed.</p>
 <h3 id="card-resolution">Card Resolution<a class="headerlink" href="#card-resolution" title="Permanent link">&para;</a></h3>
-<p>For an effect described as "after a card has resolved", use <code>AfterCardPlayedLate(PlayerChoiceContext, CardPlay)</code> as the baseline. It runs later than the immediate post-play hook and is safer for effects that assume result-pile movement and the normal play sequence have completed.</p>
+<p><code>Hook.AfterCardPlayed</code> dispatches all ordinary <code>AfterCardPlayed</code> listeners, then all <code>AfterCardPlayedLate(PlayerChoiceContext, CardPlay)</code> listeners. The late pass is useful when an effect must follow the ordinary listeners for that individual play.</p>
+<p>Prefer ordinary <code>AfterCardPlayed</code> unless this second-pass ordering is required; the base model's XML comments explicitly recommend it for usual post-play effects.</p>
+<p>Both passes occur inside the card's play-count loop, before the final result-pile movement and visual cleanup. They run only while combat remains in progress. A repeated card can reach them more than once; a combat-ending play may not reach them. For behavior tied to a pile transition, inspect <code>AfterCardChangedPiles</code> and its callers instead of assuming that "Late" means after the whole play wrapper.</p>
 <p>Do not replace or wrap a concrete card's <code>OnPlay</code> merely to observe completion. Owning the wrong task chain can leave cards in the wrong pile, interrupt animations, or duplicate cleanup.</p>
 <h2 id="mod-owned-hook-subscribers">Mod-Owned Hook Subscribers<a class="headerlink" href="#mod-owned-hook-subscribers" title="Permanent link">&para;</a></h2>
-<p><code>v0.103.3</code> adds explicit subscription paths for models that are not naturally reached through a card, relic, power, or modifier collection:</p>
+<p><code>v0.107.1</code> exposes subscription paths for models that are not naturally reached through a card, relic, power, or modifier collection:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">ModHelper</span><span class="p">.</span><span class="n">SubscribeForRunStateHooks</span><span class="p">(</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="s">&quot;example.fieldnotes.run&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">runState</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">GetRunScopedModels</span><span class="p">(</span><span class="n">runState</span><span class="p">));</span>
@@ -1375,7 +1407,7 @@
 <ul>
 <li>adding an event to a concrete act list</li>
 <li>inserting a launcher into an existing UI lifecycle</li>
-<li>correcting a value before no semantic hook exists</li>
+<li>correcting a value where no semantic hook exists</li>
 <li>observing a private implementation boundary after verifying its stability</li>
 </ul>
 <p>Prefer exact targets:</p>

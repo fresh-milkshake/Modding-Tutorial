@@ -671,6 +671,8 @@
       
         
       
+        
+      
     
     
     
@@ -943,6 +945,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -967,6 +980,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1241,6 +1282,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1386,9 +1438,10 @@
 <a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="p">}</span>
 </code></pre></div>
-<p>This patch is narrow: it changes only the event list of <code>Overgrowth</code>. Add equivalent patches for other acts only when the event belongs there.</p>
+<p>This patch changes only the event list of <code>Overgrowth</code>. <code>Underdocks</code> is another first-act variant in this build; a run using it will not receive this event through the patch above. Add equivalent patches for other acts only when the event belongs there.</p>
 <p>For an event intended to appear in every act, patch the getter for <code>ModelDb.AllSharedEvents</code> before the model database is preloaded. Keep duplicate protection because aggregate lists can be evaluated more than once.</p>
 <h2 id="eligibility">Eligibility<a class="headerlink" href="#eligibility" title="Permanent link">&para;</a></h2>
+<p>For seeded offers and the lifetime of event RNG, see <a href="../15-state-saves-and-randomness/#event-rolls">event rolls</a>.</p>
 <p>Override <code>IsAllowed(IRunState runState)</code> for conditions such as:</p>
 <ul>
 <li>a required relic or card is present</li>
@@ -1397,7 +1450,7 @@
 <li>the event is incompatible with multiplayer</li>
 <li>another modded state is available</li>
 </ul>
-<p>Eligibility is evaluated during room-set validation and event selection. Keep it deterministic for a given run state; random decisions belong in the event's seeded <code>Rng</code> and <code>CalculateVars</code>.</p>
+<p>Eligibility is checked when the room set validates the next event for selection. Keep it deterministic for a given run state; random offer values belong in the event's seeded <code>Rng</code> and <code>CalculateVars</code>.</p>
 <h2 id="multi-page-events">Multi-Page Events<a class="headerlink" href="#multi-page-events" title="Permanent link">&para;</a></h2>
 <p>An option delegate can call <code>SetEventState</code> instead of <code>SetEventFinished</code> to present another description and another option list. Use this for negotiations, repeated costs, or branching outcomes.</p>
 <p>Related capabilities include:</p>
@@ -1423,6 +1476,8 @@
 <li>a save made before entering and during the event reloads safely</li>
 </ol>
 <p>Existing acts generate their room sets when a run begins. Adding the patch to a DLL does not retroactively insert the event into an already generated act save.</p>
+<h2 id="related-sections">Related Sections<a class="headerlink" href="#related-sections" title="Permanent link">&para;</a></h2>
+<p>This example depends on the <a href="../10-custom-cards/#implementation">custom card</a>. Read <a href="../05-entrypoints-harmony-and-hooks/#harmony-patches">safe Harmony targeting</a> before adapting the act patch, and <a href="../07-native-ui-and-runtime-inspection/">native UI ownership</a> before building a custom event layout.</p>
 
 
 

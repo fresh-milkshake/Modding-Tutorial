@@ -671,6 +671,8 @@
       
         
       
+        
+      
     
     
     
@@ -881,6 +883,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -989,6 +1002,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1285,6 +1326,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1380,7 +1432,7 @@
 <li>rarity</li>
 <li>target type</li>
 </ul>
-<p><code>OnPlay</code> uses game commands rather than direct state mutation. The commands preserve command ordering, visuals, and multiplayer choice context. <code>GainsBlock</code> is presentation metadata used by systems that classify the card's behavior.</p>
+<p><code>OnPlay</code> uses game commands rather than direct state mutation. Awaiting them keeps their state changes and visuals in the play sequence; the supplied choice context carries choices through the game's flow. Commands alone do not synchronize an arbitrary external caller. <code>GainsBlock</code> identifies a card as granting Block to consumers of that property.</p>
 <h2 id="dynamic-variables">Dynamic Variables<a class="headerlink" href="#dynamic-variables" title="Permanent link">&para;</a></h2>
 <p><code>CanonicalVars</code> defines the canonical values copied into each mutable card instance. <code>DynamicVars</code> exposes the instance values after upgrades and runtime modifiers.</p>
 <p>Use the typed value required by the command:</p>
@@ -1414,7 +1466,7 @@
 <p>Because <code>PortraitPath</code> is virtual, the example uses a namespaced PNG:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>res://FieldNotes/images/cards/field_notes.png
 </code></pre></div>
-<p>The card frame, banner, energy icon, and other chrome come from the selected pool. Only the portrait is custom.</p>
+<p>The selected pool supplies frame material and energy styling; type and rarity also select native frame and banner resources. Only the portrait is overridden in this example.</p>
 <p>The default portrait path uses an atlas resource below <code>res://images/atlases/card_atlas.sprites/&lt;pool&gt;/</code>. Overriding the path avoids adding a bridge resource to that shared native directory. Verify the PNG imports as a <code>Texture2D</code> and appears in both combat and the card library.</p>
 <h2 id="creating-a-mutable-card">Creating A Mutable Card<a class="headerlink" href="#creating-a-mutable-card" title="Permanent link">&para;</a></h2>
 <p><code>ModelDb.Card&lt;FieldNotesCard&gt;()</code> returns the canonical definition. Gameplay requires a mutable, owner-bound instance:</p>
@@ -1426,7 +1478,7 @@
 <p>The base class calls <code>OnUpgrade</code> while applying an upgrade level. More complex cards can also override:</p>
 <ul>
 <li><code>MaxUpgradeLevel</code></li>
-<li><code>GetResultPileType</code></li>
+<li><code>GetResultPileTypeForCardPlay</code></li>
 <li>canonical keywords and tags</li>
 <li>extra description arguments</li>
 <li>creation and transformation callbacks</li>
@@ -1444,6 +1496,8 @@
 <li>a run containing the card saves and reloads</li>
 </ol>
 <p>If the card exists but never appears in rewards, the problem is selection or unlock filtering. If the effect runs but card movement breaks, the problem is the play lifecycle rather than registration.</p>
+<h2 id="related-sections">Related Sections<a class="headerlink" href="#related-sections" title="Permanent link">&para;</a></h2>
+<p>Pool and visibility rules are explained in <a href="../06-assets-pck-and-localization/#pool-membership">content infrastructure</a>. For follow-up effects outside this card, see <a href="../05-entrypoints-harmony-and-hooks/#semantic-hooks">semantic hooks</a>. The <a href="../13-custom-act-events/#event-model">act event example</a> shows how to grant this card.</p>
 
 
 

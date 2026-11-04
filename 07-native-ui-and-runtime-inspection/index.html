@@ -704,6 +704,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -784,6 +795,8 @@
   
     
     
+      
+        
       
         
       
@@ -967,6 +980,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1241,6 +1282,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1269,7 +1321,7 @@
 <h1 id="07-native-ui-and-runtime-inspection">07. Native UI And Runtime Inspection<a class="headerlink" href="#07-native-ui-and-runtime-inspection" title="Permanent link">&para;</a></h1>
 <p>STS2 UI integration is primarily a hierarchy problem. A screen can have a lifecycle owner, a visual parent, a focus context, and a tooltip host that are related but not identical.</p>
 <h2 id="current-native-roles">Current Native Roles<a class="headerlink" href="#current-native-roles" title="Permanent link">&para;</a></h2>
-<p>Important types in <code>v0.103.3</code> include:</p>
+<p>Important types in <code>v0.107.1</code> include:</p>
 <ul>
 <li><code>NOverlayStack</code>: run-time overlay host and stack</li>
 <li><code>NModalContainer</code>: single modal host with a dimming backstop</li>
@@ -1295,13 +1347,14 @@
 </code></pre></div>
 <p><code>Push</code> adds the screen to the visual tree, hides the previous overlay, moves the shared backstop, updates active focus context, and emits a stack change signal. <code>Remove</code> reverses that lifecycle but does not itself free arbitrary custom nodes. A custom overlay should release itself in <code>AfterOverlayClosed</code>.</p>
 <h2 id="visual-host-and-lifecycle-owner">Visual Host And Lifecycle Owner<a class="headerlink" href="#visual-host-and-lifecycle-owner" title="Permanent link">&para;</a></h2>
-<p><code>NSubmenuStack</code> is not a safe default visual parent. It owns open, close, push, pop, and back-navigation semantics for <code>NSubmenu</code> instances. Native screens can know their stack while living under a different control that supplies the expected geometry.</p>
+<p><code>NSubmenuStack.Push</code> manages navigation and assigns stack ownership; it does not itself attach a screen to the scene tree. The concrete <code>NRunSubmenuStack.GetSubmenuType&lt;T&gt;()</code> factories create and cache supported screens, including <code>NCardLibrary</code> and <code>NRelicCollection</code>, and add them as children of that stack.</p>
 <p>This explains a common failure pattern:</p>
 <ul>
-<li>adding a screen only to a submenu stack gives it lifecycle but the wrong coordinate root</li>
-<li>adding a native submenu only to an overlay gives it pixels but no native back-navigation lifecycle</li>
+<li>calling <code>Push</code> on a newly created screen without attaching it leaves it outside the visual tree</li>
+<li>manually reparenting a native screen can change its coordinate root and clipping</li>
+<li>attaching a native submenu without its stack protocol omits native navigation ownership</li>
 </ul>
-<p>Inspect the vanilla parent chain of the screen you are reusing and reproduce the division of responsibility rather than forcing both roles onto one node.</p>
+<p>Prefer the concrete stack's <code>GetSubmenuType&lt;T&gt;()</code> or <code>PushSubmenuType&lt;T&gt;()</code> for screens it supports. For a custom host, inspect and reproduce both the native attachment and navigation protocol. Parenting under a stack is not inherently invalid; the host's actual geometry determines the result.</p>
 <h2 id="reusing-native-libraries">Reusing Native Libraries<a class="headerlink" href="#reusing-native-libraries" title="Permanent link">&para;</a></h2>
 <p><code>NCardLibrary</code> and <code>NRelicCollection</code> are concrete native screens with their own scene geometry. Their <code>Create</code> methods instantiate scenes from the game PCK. They expect submenu lifecycle, focus handling, preload state, and the same visual coordinate system used by the native compendium.</p>
 <p>Before reusing one:</p>
@@ -1345,6 +1398,8 @@
 <li>reproduce the smallest valid lifecycle in the mod</li>
 </ol>
 <p>Chapter 14 applies this model to a self-contained <code>IOverlayScreen</code> that does not depend on a custom <code>.tscn</code> file.</p>
+<h2 id="related-sections">Related Sections<a class="headerlink" href="#related-sections" title="Permanent link">&para;</a></h2>
+<p>Continue with the <a href="../14-custom-gui/#overlay-implementation">complete custom GUI example</a>, or the <a href="../13-custom-act-events/#portrait">event layout discussion</a> for UI owned by an event.</p>
 
 
 

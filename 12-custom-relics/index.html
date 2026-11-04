@@ -671,6 +671,8 @@
       
         
       
+        
+      
     
     
     
@@ -926,6 +928,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -978,6 +991,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1263,6 +1304,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1377,6 +1429,7 @@
 <p><code>RelicCmd.Obtain</code> establishes ownership and runs obtain behavior. Directly inserting a canonical relic into a collection bypasses lifecycle and mutability checks.</p>
 <p>Use <code>AfterObtained</code> and <code>AfterRemoved</code> for state changes tied to ownership. Combat hooks should assume <code>Owner</code> exists because they are reached through the owned relic collection.</p>
 <h2 id="stateful-relics">Stateful Relics<a class="headerlink" href="#stateful-relics" title="Permanent link">&para;</a></h2>
+<p>For a complete counter-based example, continue with <a href="../15-state-saves-and-randomness/#a-relic-that-remembers-played-cards">State, Saves, Cloning, And Randomness</a>.</p>
 <p>For counters and persistent fields, inspect:</p>
 <ul>
 <li><code>ShowCounter</code></li>
@@ -1394,7 +1447,7 @@
 <ol>
 <li>the shared relic pool contains the model</li>
 <li>a reward can generate it</li>
-<li><code>RelicCmd.Obtain</code> creates an owned mutable instance</li>
+<li><code>RelicCmd.Obtain</code> receives the mutable instance and establishes ownership</li>
 <li>the start-of-combat hook fires once per combat</li>
 <li>Block uses the expected modifier semantics</li>
 <li>small, outline, and large art render</li>
@@ -1402,6 +1455,8 @@
 <li>a run containing the relic saves and reloads</li>
 </ol>
 <p>The most diagnostic failure is <code>RelicModel.get_Pool()</code> throwing a missing-element exception. Fix registration before investigating UI code.</p>
+<h2 id="related-sections">Related Sections<a class="headerlink" href="#related-sections" title="Permanent link">&para;</a></h2>
+<p>The hook used here follows <a href="../05-entrypoints-harmony-and-hooks/#semantic-hooks">semantic hook selection</a>. See <a href="../06-assets-pck-and-localization/#unlock-and-catalog-visibility">unlock and catalog visibility</a> when the relic works in a run but appears hidden in the collection.</p>
 
 
 

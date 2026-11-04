@@ -564,6 +564,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#workshop-and-duplicate-mods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workshop And Duplicate Mods
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -795,6 +806,8 @@
       
         
       
+        
+      
     
     
     
@@ -967,6 +980,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1241,6 +1282,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#workshop-and-duplicate-mods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workshop And Duplicate Mods
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1283,14 +1335,14 @@
 <h2 id="current-release-marker">Current Release Marker<a class="headerlink" href="#current-release-marker" title="Permanent link">&para;</a></h2>
 <p>The verified local <code>release_info.json</code> contains:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;commit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;460a0ece&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v0.103.3&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-05-29T13:36:05-07:00&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v0.103.3&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;main_assembly_hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-1584622192</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;commit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;59260271&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v0.107.1&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-06-18T15:43:56-07:00&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v0.107.1&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;main_assembly_hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-1555940892</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
 </code></pre></div>
-<p>This handbook was revalidated after Major Update #1. Public update notes identify <code>v0.103.2</code> as the main-branch consolidation of the preceding beta changes; the installed build used here is the later <code>v0.103.3</code> release.</p>
+<p>This handbook uses Major Update #2, <code>v0.107.1</code>. The <a href="https://steamcommunity.com/app/2868840/announcements/?l=english">official announcement feed</a> distinguishes stable releases from beta updates.</p>
 <h2 id="loader-sequence">Loader Sequence<a class="headerlink" href="#loader-sequence" title="Permanent link">&para;</a></h2>
 <p>The current <code>ModManager</code> performs the following high-level sequence:</p>
 <ol>
@@ -1316,13 +1368,17 @@
 </ul>
 <p>Current public <code>ModManager</code> functionality includes loaded-mod enumeration, mod state, gameplay-relevant mod names, localization table discovery, and mod detection events. Several methods named in older guides, including direct public load and initializer helpers, are now implementation details and should not be treated as stable mod APIs.</p>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
-<p><code>dependencies</code> is a list of manifest IDs, not display names or filenames. The loader delays a mod until all declared dependencies are loaded. Missing and circular dependencies are reported as load failures.</p>
+<p><code>dependencies</code> is a list of objects containing <code>id</code> and optional <code>min_version</code>. The loader orders dependencies and checks their declared semantic versions. Missing dependencies, circular chains, and unsatisfied minimum versions prevent loading. See the <a href="../03-mod-loading-and-manifests/#versioned-dependencies">manifest examples</a>.</p>
 <p>Use dependencies only for real runtime requirements. A mod that merely interoperates with another mod should usually detect it at runtime instead of making it mandatory.</p>
 <h2 id="player-consent-and-disablement">Player Consent And Disablement<a class="headerlink" href="#player-consent-and-disablement" title="Permanent link">&para;</a></h2>
 <p>The loader also tracks player consent and disabled mods. A correct payload can remain inactive when mod loading has not been accepted or the mod is disabled in settings. Diagnose loader state before changing the DLL.</p>
 <h2 id="resource-packs">Resource Packs<a class="headerlink" href="#resource-packs" title="Permanent link">&para;</a></h2>
 <p>When <code>has_pck</code> is true, the loader calls <code>ProjectSettings.LoadResourcePack</code> for <code>&lt;id&gt;.pck</code>. The pack can add resources anywhere below <code>res://</code>, subject to Godot path and collision rules. Localization is more specific: the current loader probes <code>res://&lt;id&gt;/localization/&lt;language&gt;/&lt;file&gt;</code> for every loaded mod.</p>
 <p>The next chapter turns this loader behavior into a project and installation layout.</p>
+<h2 id="workshop-and-duplicate-mods">Workshop And Duplicate Mods<a class="headerlink" href="#workshop-and-duplicate-mods" title="Permanent link">&para;</a></h2>
+<p>The loader also discovers subscribed Workshop items and checks their supported Steam branch ranges. Branch compatibility is distinct from the manifest's minimum game version: passing one check does not imply passing the other.</p>
+<p>When the same mod ID is found locally and through Workshop, the local copy takes precedence and the Workshop copy receives <code>DisabledDuplicate</code>. Disable or remove the local development copy before testing a Workshop release.</p>
+<p><code>ModManager.Initialize(IModManagerFileIo, ModSettings?, SemanticVersion?)</code> now returns <code>Task</code>. This is the game's startup API; a mod's attributed initializer remains a static method called by the loader. See <a href="../05-entrypoints-harmony-and-hooks/#explicit-initialization">initialization</a> and <a href="../08-debugging-and-fast-iteration/#version-and-workshop-failures">load diagnostics</a>.</p>
 
 
 

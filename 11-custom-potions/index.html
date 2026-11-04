@@ -671,6 +671,8 @@
       
         
       
+        
+      
     
     
     
@@ -887,6 +889,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -967,6 +980,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1241,6 +1282,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1342,7 +1394,7 @@
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;BOTTLED_INSIGHT_POTION.selectionScreenPrompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Choose a player to draw cards.&quot;</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
 </code></pre></div>
-<p>The selection prompt matters for target-driven use flows. Even if one mode currently skips the prompt, complete localization prevents a later UI path from exposing a raw key.</p>
+<p><code>SelectionScreenPrompt</code> supplies text for potion implementations that open a selection screen, such as a card picker. It is not the label used automatically for <code>TargetType.AnyPlayer</code> targeting. The example includes the key for completeness; its draw effect does not open such a picker.</p>
 <h2 id="fixed-art-path">Fixed Art Path<a class="headerlink" href="#fixed-art-path" title="Permanent link">&para;</a></h2>
 <p>Unlike card portraits and relic icons, the current potion image path is not virtual. <code>PotionModel</code> resolves:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>res://images/atlases/potion_atlas.sprites/bottled_insight_potion.tres
@@ -1389,12 +1441,14 @@
 <li><code>SharedPotionPool.AllPotions</code> contains the potion</li>
 <li>normal rewards and merchants can generate it</li>
 <li>hover text resolves before and during combat</li>
-<li>the target prompt appears when more than one player is valid</li>
+<li>player targeting allows the intended eligible players</li>
 <li>the chosen player draws the cards</li>
 <li>the base texture and optional outline render in every potion slot</li>
 <li>a save containing the potion reloads</li>
 </ol>
 <p>If <code>PotionModel.Pool</code> throws, registration is missing or late. If the model works but the bottle is blank, inspect the fixed atlas-resource path inside the final PCK.</p>
+<h2 id="related-sections">Related Sections<a class="headerlink" href="#related-sections" title="Permanent link">&para;</a></h2>
+<p>Review <a href="../06-assets-pck-and-localization/#pool-membership">pool membership</a> and the shared <a href="../06-assets-pck-and-localization/#localization-contract">localization contract</a>. For blank images or load failures, see <a href="../08-debugging-and-fast-iteration/#content-failure-signatures">content diagnostics</a>.</p>
 
 
 

@@ -843,6 +843,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-and-workshop-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version And Workshop Failures
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -895,6 +906,8 @@
   
     
     
+      
+        
       
         
       
@@ -1078,6 +1091,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1463,6 +1504,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-and-workshop-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version And Workshop Failures
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1526,7 +1578,7 @@
 </code></pre></div>
 <p>Check <code>has_dll</code>, <code>has_pck</code>, case, and basenames.</p>
 <h3 id="dependency-failure">Dependency failure<a class="headerlink" href="#dependency-failure" title="Permanent link">&para;</a></h3>
-<p>Check that every dependency string equals another manifest's <code>id</code>. Display names and assembly names are not dependency identifiers. Inspect logs for missing or circular chains.</p>
+<p>Check that every dependency object's <code>id</code> equals another manifest's <code>id</code>. Display names and assembly names are not dependency identifiers. Inspect logs for missing or circular chains.</p>
 <h3 id="initializer-failure">Initializer failure<a class="headerlink" href="#initializer-failure" title="Permanent link">&para;</a></h3>
 <p>Check:</p>
 <ul>
@@ -1549,7 +1601,7 @@
 <h3 id="missing-image-or-invalid-cast-to-texture2d">Missing image or invalid cast to <code>Texture2D</code><a class="headerlink" href="#missing-image-or-invalid-cast-to-texture2d" title="Permanent link">&para;</a></h3>
 <p>Check whether the model expects a PNG or a <code>.tres</code> texture resource. Potion art uses a fixed atlas-resource path; placing only a namespaced PNG does not satisfy that lookup.</p>
 <h3 id="card-effect-runs-but-card-flow-breaks">Card effect runs but card flow breaks<a class="headerlink" href="#card-effect-runs-but-card-flow-breaks" title="Permanent link">&para;</a></h3>
-<p>The effect is attached too early or owns the wrong async chain. Prefer the model's <code>OnPlay</code> for a custom card and <code>AfterCardPlayedLate</code> for external post-resolution behavior.</p>
+<p>The effect may own the wrong async chain or make an invalid timing assumption. Prefer the model's <code>OnPlay</code> for a custom card. <code>AfterCardPlayedLate</code> follows ordinary post-play listeners, but still precedes final pile movement; see <a href="../05-entrypoints-harmony-and-hooks/#card-resolution">card resolution</a>.</p>
 <h2 id="save-state-troubleshooting">Save-State Troubleshooting<a class="headerlink" href="#save-state-troubleshooting" title="Permanent link">&para;</a></h2>
 <p>Active saves may exist under both:</p>
 <ul>
@@ -1557,6 +1609,7 @@
 <li><code>&lt;Steam&gt;/userdata/&lt;AccountId&gt;/2868840/remote/...</code></li>
 </ul>
 <p>Modded runs use modded profile save paths. Before editing or deleting a save, close the game and preserve both copies. Cloud synchronization can restore the copy that was not changed.</p>
+<p>The current path provider uses <code>steam/&lt;SteamId&gt;/modded/profile&lt;ProfileId&gt;/saves/</code> for modded profile saves below <code>user://</code>. Non-modded profiles omit <code>modded/</code>. Steam's local cloud cache is a separate location; inspect actual files and timestamps rather than assuming the cache always contains a matching active save.</p>
 <p>Custom models serialize by model ID through the game's save types. Renaming a model class changes its generated entry ID unless compatibility code maps the old ID. Treat class names as persistent data once a release can appear in a save.</p>
 <h2 id="instrumentation">Instrumentation<a class="headerlink" href="#instrumentation" title="Permanent link">&para;</a></h2>
 <p>Log high-value boundaries:</p>
@@ -1581,6 +1634,11 @@
 <li>GUI open, close, focus, and tooltip ordering</li>
 </ol>
 <p>This matrix detects semantic drift that a successful build cannot prove absent.</p>
+<h2 id="version-and-workshop-failures">Version And Workshop Failures<a class="headerlink" href="#version-and-workshop-failures" title="Permanent link">&para;</a></h2>
+<p>Inspect <code>Mod.state</code> and <code>Mod.errors</code> before changing gameplay code. Current compatibility failures distinguish invalid or unsupported <code>min_game_version</code>, invalid dependency minima, missing or invalid dependency versions, and versions below the required minimum.</p>
+<p><code>Loaded</code> alone does not prove successful initialization. The current loader records initializer/PatchAll failures in <code>errors</code> while still assigning <code>Loaded</code>; missing declared payloads can be logged without forcing <code>Failed</code>. Check the expected assembly, payload log lines, and errors together.</p>
+<p>A legacy string dependency list is migrated with a warning; replace it with <a href="../03-mod-loading-and-manifests/#versioned-dependencies">object entries</a>. A Workshop branch mismatch is a separate check from semantic version requirements.</p>
+<p>If Workshop changes appear to have no effect, look for a local mod with the same ID: it takes precedence and disables the Workshop duplicate. Remove that local copy while the game is closed and retest. Changing settings does not unload assemblies already loaded into the process.</p>
 
 
 

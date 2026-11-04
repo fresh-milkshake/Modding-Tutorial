@@ -370,6 +370,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#verification-and-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification And Branches
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -758,6 +769,8 @@
       
         
       
+        
+      
     
     
     
@@ -930,6 +943,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1171,6 +1212,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#verification-and-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification And Branches
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1221,15 +1273,15 @@
 <tbody>
 <tr>
 <td>STS2</td>
-<td><code>v0.103.3</code></td>
+<td><code>v0.107.1</code></td>
 </tr>
 <tr>
 <td>Commit</td>
-<td><code>460a0ece</code></td>
+<td><code>59260271</code></td>
 </tr>
 <tr>
 <td>Release metadata date</td>
-<td><code>2026-05-29T13:36:05-07:00</code></td>
+<td><code>2026-06-18T15:43:56-07:00</code></td>
 </tr>
 <tr>
 <td>Target framework</td>
@@ -1247,10 +1299,13 @@
 </table>
 <p>Early Access updates can change signatures and loader contracts. Re-check <code>release_info.json</code>, <code>sts2.runtimeconfig.json</code>, and <code>sts2.dll</code> before maintaining a released mod.</p>
 <h2 id="start-reading">Start Reading<a class="headerlink" href="#start-reading" title="Permanent link">&para;</a></h2>
-<p>Begin with <a href="01-environment-setup/">Environment Setup</a>, then follow the numbered chapters in the sidebar. The first nine chapters explain the runtime and packaging model. Chapters 10–14 apply it to a card, potion, relic, act event, and custom overlay.</p>
+<p>Begin with <a href="01-environment-setup/">Environment Setup</a>, then follow the numbered chapters in the sidebar. The first nine chapters explain the runtime and packaging model. Chapters 10–14 apply it to a card, potion, relic, act event, and custom overlay. <a href="15-state-saves-and-randomness/">Chapter 15</a> develops persistent state, cloning, and deterministic randomness through a counter-based relic.</p>
 <p>Use the <a href="handbook-overview/">Handbook Overview</a> for the complete structure and source hierarchy.</p>
 <h2 id="not-covered">Not Covered<a class="headerlink" href="#not-covered" title="Permanent link">&para;</a></h2>
 <p>This tutorial does not teach C#, Harmony, Godot, illustration, or game design from first principles. It documents how those tools connect to the current STS2 runtime.</p>
+<h2 id="verification-and-branches">Verification And Branches<a class="headerlink" href="#verification-and-branches" title="Permanent link">&para;</a></h2>
+<p>Last API and resource inspection: <strong>2026-11-04</strong>, stable <code>v0.107.1</code> (<code>59260271</code>). This baseline describes the installed stable branch. The public beta is a separate compatibility target; do not assume its APIs or balance changes are present here.</p>
+<p>The code examples are checked by compilation against the installed assemblies. Compilation and resource inspection do not replace the in-game validation matrices in each chapter.</p>
 
 
 

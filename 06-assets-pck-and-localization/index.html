@@ -698,6 +698,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -806,6 +817,8 @@
   
     
     
+      
+        
       
         
       
@@ -989,6 +1002,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1285,6 +1326,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#related-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1376,7 +1428,7 @@
 <li>custom event layouts resolve a scene from the event slug</li>
 </ul>
 <p>This distinction determines whether to override a property or place a resource at a native path. Chapters 10-13 document each contract.</p>
-<p>Namespaced raw assets are safe:</p>
+<p>Namespaced resource paths reduce collision risk:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>res://FieldNotes/images/cards/field_notes.png
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>res://FieldNotes/images/relics/surveyor_lens.png
 </code></pre></div>
@@ -1392,6 +1444,7 @@
 </ul>
 <p>The PCK does not need a second mod manifest. The external <code>&lt;id&gt;.json</code> controls loading.</p>
 <p>After packing, list the final archive and verify the exact internal paths. A successful pack command proves only that a file was produced.</p>
+<p>For textures, retain the source-path <code>.import</code> remap and the generated <code>.godot/imported/...</code> resource that it references. A <code>.tres</code> pointing at a PNG does not itself generate texture imports. Export through a matching Godot project or pack the already imported resources together; do not assume copying raw PNGs into a PCK is sufficient for exported-game resource loading.</p>
 <h2 id="resource-validation">Resource Validation<a class="headerlink" href="#resource-validation" title="Permanent link">&para;</a></h2>
 <p>Test each model in at least these contexts:</p>
 <ul>
@@ -1402,6 +1455,8 @@
 <li>save and reload after obtaining the item</li>
 </ul>
 <p>This matrix catches missing pool membership, bad art paths, hidden unlock state, and serialization failures earlier than ordinary playtesting.</p>
+<h2 id="related-sections">Related Sections<a class="headerlink" href="#related-sections" title="Permanent link">&para;</a></h2>
+<p>For complete implementations, continue with <a href="../10-custom-cards/">cards</a>, <a href="../11-custom-potions/">potions</a>, <a href="../12-custom-relics/">relics</a>, or <a href="../13-custom-act-events/">act events</a>. Their <a href="../08-debugging-and-fast-iteration/#update-regression-matrix">validation matrices</a> complement registration checks.</p>
 
 
 

@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://fresh-milkshake.github.io/Modding-Tutorial/appendix-api-inventory/">
       
       
-        <link rel="prev" href="../14-custom-gui/">
+        <link rel="prev" href="../15-state-saves-and-randomness/">
       
       
         <link rel="next" href="../appendix-example-mods/">
@@ -669,6 +669,8 @@
       
         
       
+        
+      
     
     
     
@@ -841,6 +843,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1138,6 +1168,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-and-loader-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version And Loader Types
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1385,6 +1426,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-and-loader-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version And Loader Types
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1411,7 +1463,7 @@
 
 
 <h1 id="appendix-a-api-inventory">Appendix A. API Inventory<a class="headerlink" href="#appendix-a-api-inventory" title="Permanent link">&para;</a></h1>
-<p>Verified against <code>sts2.dll</code> from STS2 <code>v0.103.3</code>, commit <code>460a0ece</code>.</p>
+<p>Verified against <code>sts2.dll</code> from STS2 <code>v0.107.1</code>, commit <code>59260271</code>.</p>
 <h2 id="modmanifest"><code>ModManifest</code><a class="headerlink" href="#modmanifest" title="Permanent link">&para;</a></h2>
 <p>JSON fields:</p>
 <ul>
@@ -1424,6 +1476,7 @@
 <li><code>has_dll</code></li>
 <li><code>dependencies</code></li>
 <li><code>affects_gameplay</code></li>
+<li><code>min_game_version</code></li>
 </ul>
 <p><code>id</code> is required. The loader resolves sibling <code>&lt;id&gt;.dll</code> and <code>&lt;id&gt;.pck</code> files from the manifest directory. <code>pck_name</code> is not a current field.</p>
 <h2 id="modmanager"><code>ModManager</code><a class="headerlink" href="#modmanager" title="Permanent link">&para;</a></h2>
@@ -1433,9 +1486,12 @@
 <li><code>bool PlayerAgreedToModLoading</code></li>
 <li><code>event Action&lt;Mod&gt; OnModDetected</code></li>
 <li><code>event MetricsUploadHook OnMetricsUpload</code></li>
-<li><code>Initialize(IModManagerFileIo, ModSettings?)</code></li>
+<li><code>Task Initialize(IModManagerFileIo, ModSettings?, SemanticVersion?)</code></li>
+<li><code>ModManagerState State</code></li>
+<li><code>EvaluateBranchSupport(PlatformBranch, IReadOnlyList&lt;(string MinBranch, string MaxBranch)&gt;)</code></li>
 <li><code>GetModdedLocTables(string language, string file)</code></li>
 <li><code>GetGameplayRelevantModNameList()</code></li>
+<li><code>GetNonGameplayRelevantModNameList()</code></li>
 <li><code>IsRunningModded()</code></li>
 <li><code>HasHarmonyPatches()</code></li>
 <li><code>GetLoadedMods()</code></li>
@@ -1449,6 +1505,7 @@
 <li><code>path</code></li>
 <li><code>state</code></li>
 <li><code>manifest</code></li>
+<li><code>version</code> (parsed <code>SemanticVersion?</code>)</li>
 <li><code>assembly</code></li>
 <li><code>errors</code></li>
 </ul>
@@ -1494,7 +1551,7 @@
 <li><code>Pool</code></li>
 <li><code>CanonicalKeywords</code></li>
 <li><code>CanonicalTags</code></li>
-<li><code>GetResultPileType()</code></li>
+<li><code>GetResultPileTypeForCardPlay()</code></li>
 </ul>
 <p>Public description method:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>GetDescriptionForPile(PileType, Creature? target = null)
@@ -1559,14 +1616,18 @@
 <li><code>NRelicCollection.Create()</code></li>
 <li><code>ActiveScreenContext</code></li>
 </ul>
-<p><code>NOverlayStack</code> owns overlay visuals and lifecycle. <code>NSubmenuStack</code> owns submenu navigation and is not automatically the correct visual parent.</p>
+<p><code>NOverlayStack</code> owns overlay visuals and lifecycle. <code>NSubmenuStack.Push</code> manages navigation without attaching the screen; concrete stack factories create and parent supported screens. The current run stack parents its cached libraries under itself.</p>
 <h2 id="hooks">Hooks<a class="headerlink" href="#hooks" title="Permanent link">&para;</a></h2>
 <p><code>Hook.AfterCardPlayed</code> currently invokes model listeners in two passes:</p>
 <ol>
 <li><code>AfterCardPlayed(PlayerChoiceContext, CardPlay)</code></li>
 <li><code>AfterCardPlayedLate(PlayerChoiceContext, CardPlay)</code></li>
 </ol>
-<p>Use the late model hook for behavior that assumes normal card resolution has completed.</p>
+<p>The late pass follows ordinary post-play listeners for each individual play. Both passes precede final result-pile movement and are skipped if combat has ended. See <a href="../05-entrypoints-harmony-and-hooks/#card-resolution">card resolution</a>.</p>
+<h2 id="version-and-loader-types">Version And Loader Types<a class="headerlink" href="#version-and-loader-types" title="Permanent link">&para;</a></h2>
+<p><code>ModDependency</code> contains JSON fields <code>id</code> and optional <code>min_version</code>; <code>ModManifest.dependencies</code> is <code>List&lt;ModDependency&gt;?</code>. <code>ModManifest.ReadFromStream(Stream, out List&lt;LocString&gt;?)</code> reads manifests and migrates legacy string dependencies with a diagnostic.</p>
+<p><code>ModManagerState</code> values are <code>None</code>, <code>Initialized</code>, and <code>Skipped</code>. This is loader initialization state, separate from each <code>Mod.state</code>. <code>Skipped</code> covers test/AOT paths and the <code>nomods</code> command-line option. Per-mod state, errors, and parsed version should be inspected when diagnosing compatibility.</p>
+<p>See <a href="../03-mod-loading-and-manifests/#versioned-dependencies">versioned manifests</a> for the authoring contract.</p>
 
 
 
@@ -1602,7 +1663,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../14-custom-gui/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 14. Custom GUI">
+          <a href="../15-state-saves-and-randomness/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 15. State, Saves, And Randomness">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1612,7 +1673,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                14. Custom GUI
+                15. State, Saves, And Randomness
               </div>
             </div>
           </a>

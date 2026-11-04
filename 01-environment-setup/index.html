@@ -525,6 +525,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#verification-and-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification And Branches
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -784,6 +795,8 @@
       
         
       
+        
+      
     
     
     
@@ -956,6 +969,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1219,6 +1260,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#verification-and-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification And Branches
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1249,7 +1301,7 @@
 <h2 id="verified-toolchain">Verified Toolchain<a class="headerlink" href="#verified-toolchain" title="Permanent link">&para;</a></h2>
 <p>The baseline used throughout this handbook is:</p>
 <ul>
-<li>STS2 <code>v0.103.3</code>, commit <code>460a0ece</code></li>
+<li>STS2 <code>v0.107.1</code>, commit <code>59260271</code></li>
 <li>.NET target framework <code>net9.0</code></li>
 <li>bundled Microsoft.NETCore.App <code>9.0.7</code></li>
 <li>Godot PCK version <code>4.5.1</code></li>
@@ -1290,7 +1342,7 @@
 <ul>
 <li>a Godot 4.5.1 .NET editor or a compatible PCK packer</li>
 </ul>
-<p>Useful local tools may be shipped under <code>&lt;STS2&gt;/tools</code>, including <code>godotpcktool.exe</code>. They are development conveniences, not runtime dependencies of a mod.</p>
+<p>Useful local tools can be placed under <code>&lt;STS2&gt;/tools</code>, including <code>godotpcktool.exe</code>. The inspected installation has that executable, but its presence does not establish that every vanilla Steam install includes it. Treat it as an optional development tool, not a mod runtime dependency.</p>
 <h2 id="preflight-check">Preflight Check<a class="headerlink" href="#preflight-check" title="Permanent link">&para;</a></h2>
 <p>Before writing code:</p>
 <ol>
@@ -1310,6 +1362,9 @@
 <li>assuming a successful DLL build proves the PCK and manifest are valid</li>
 </ul>
 <p>The next chapter maps these files to the loader stages that consume them.</p>
+<h2 id="verification-and-branches">Verification And Branches<a class="headerlink" href="#verification-and-branches" title="Permanent link">&para;</a></h2>
+<p>Last API and resource inspection: <strong>2026-11-04</strong>, stable <code>v0.107.1</code> (<code>59260271</code>). This baseline describes the installed stable branch. The public beta is a separate compatibility target; do not assume its APIs or balance changes are present here.</p>
+<p>The code examples are checked by compilation against the installed assemblies. Compilation and resource inspection do not replace the in-game validation matrices in each chapter.</p>
 
 
 

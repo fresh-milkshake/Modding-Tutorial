@@ -782,6 +782,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#workshop-release-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workshop Release Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -806,6 +817,8 @@
   
     
     
+      
+        
       
         
       
@@ -989,6 +1002,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1285,6 +1326,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#workshop-release-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workshop Release Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1312,7 +1364,7 @@
 
 <h1 id="09-packaging-installing-and-verifying">09. Packaging, Installing, And Verifying<a class="headerlink" href="#09-packaging-installing-and-verifying" title="Permanent link">&para;</a></h1>
 <h2 id="canonical-local-layout">Canonical Local Layout<a class="headerlink" href="#canonical-local-layout" title="Permanent link">&para;</a></h2>
-<p>For <code>v0.103.3</code>, use one directory per mod:</p>
+<p>For <code>v0.107.1</code>, use one directory per mod:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;STS2&gt;/mods/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  FieldNotes/
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    FieldNotes.json
@@ -1320,7 +1372,7 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    FieldNotes.pck
 </code></pre></div>
 <p>The loader recursively discovers the manifest and resolves both payloads in the same directory. A code-only mod omits the PCK and sets <code>has_pck</code> to <code>false</code>.</p>
-<p>Root-level payloads remain technically valid, but directories prevent unrelated files from sharing one namespace and make removal atomic.</p>
+<p>Root-level payloads remain technically valid, but per-mod directories isolate files and simplify complete replacement or removal.</p>
 <h2 id="release-archive">Release Archive<a class="headerlink" href="#release-archive" title="Permanent link">&para;</a></h2>
 <p>An install-ready archive should preserve the <code>mods</code> boundary:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mods/
@@ -1342,13 +1394,14 @@
 <li>fail the build if any declared payload is absent</li>
 <li>list the PCK contents and verify required internal paths</li>
 </ol>
-<p>The manifest should not claim optional files that are not present. The loader logs the mismatch and leaves the mod in an error state.</p>
+<p>The manifest should not declare files that are absent. The current loader logs missing payloads but can still assign <code>Loaded</code>; initializer errors can also coexist with that state. Validate actual payload loading and logs rather than relying on the state label alone.</p>
 <h2 id="manifest-checklist">Manifest Checklist<a class="headerlink" href="#manifest-checklist" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>id</code> is stable and matches DLL/PCK basenames</li>
 <li><code>version</code> matches the release being shipped</li>
 <li><code>has_dll</code> and <code>has_pck</code> match actual files</li>
-<li>dependencies use exact manifest IDs</li>
+<li>dependencies use object entries with exact manifest IDs and tested <code>min_version</code> values</li>
+<li><code>min_game_version</code> is parseable and matches the oldest game release actually supported</li>
 <li><code>affects_gameplay</code> is <code>false</code> only for a genuinely non-gameplay utility</li>
 <li>description is short enough for the loader UI</li>
 <li>no unrelated <code>.json</code> files are inside the scanned install directory</li>
@@ -1391,6 +1444,9 @@
 <li>tested new-run and save-load outcomes</li>
 </ul>
 <p>The record turns a release from an assumed file set into a reproducible compatibility result.</p>
+<h2 id="workshop-release-checks">Workshop Release Checks<a class="headerlink" href="#workshop-release-checks" title="Permanent link">&para;</a></h2>
+<p>Test the installed Workshop payload separately from the local staging directory. Remove the local copy with the same ID first; otherwise the loader selects it over the subscription. Verify the Workshop supported branch ranges as well as the <a href="../03-mod-loading-and-manifests/#versioned-dependencies">manifest version requirements</a>.</p>
+<p>Record the game branch with the release evidence. Stable and beta compatibility require separate builds or verification when their APIs differ.</p>
 
 
 

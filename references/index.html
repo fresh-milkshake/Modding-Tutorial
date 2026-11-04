@@ -667,6 +667,8 @@
       
         
       
+        
+      
     
     
     
@@ -839,6 +841,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1066,6 +1096,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verification-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#community-material" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1141,6 +1182,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verification-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#community-material" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1178,19 +1230,20 @@
 
 <h1 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h1>
 <h2 id="current-release-evidence">Current Release Evidence<a class="headerlink" href="#current-release-evidence" title="Permanent link">&para;</a></h2>
-<p>Local files used for the <code>v0.103.3</code> baseline:</p>
+<p>Local files used for the <code>v0.107.1</code> baseline:</p>
 <ul>
 <li><code>&lt;STS2&gt;/release_info.json</code></li>
 <li><code>&lt;STS2&gt;/data_sts2_windows_x86_64/sts2.runtimeconfig.json</code></li>
 <li><code>&lt;STS2&gt;/data_sts2_windows_x86_64/sts2.dll</code></li>
+<li><code>&lt;STS2&gt;/data_sts2_windows_x86_64/sts2.xml</code></li>
 <li><code>&lt;STS2&gt;/SlayTheSpire2.pck</code></li>
 <li>current game and Godot user logs</li>
 </ul>
 <p>Public release context:</p>
 <ul>
-<li><a href="https://store.steampowered.com/news/app/2868840/view/526499614836130064">Major Update #1 - v0.103.2</a></li>
+<li><a href="https://steamcommunity.com/app/2868840/announcements/?l=english">Official STS2 announcement feed</a></li>
 </ul>
-<p>The installed <code>v0.103.3</code> build is newer than that public major-update announcement. Local release metadata and assembly inspection are therefore used for exact current signatures.</p>
+<p>The installed <code>v0.107.1</code> release is the stable Major Update #2 baseline. Official announcements distinguish beta changes from the stable branch. API and resource inspection was repeated on 2026-11-04.</p>
 <h2 id="toolchain">Toolchain<a class="headerlink" href="#toolchain" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://godotengine.org/download/archive/4.5.1-stable/">Godot 4.5.1 stable archive</a></li>
@@ -1199,7 +1252,11 @@
 <li><a href="https://harmony.pardeike.net/articles/intro.html">Harmony documentation</a></li>
 <li><a href="https://github.com/pardeike/Harmony">Harmony source</a></li>
 </ul>
-<p>The game installation currently also ships <code>tools/bin/godotpcktool.exe</code>. It is useful for selective PCK listing and extraction but is not a runtime dependency of released mods.</p>
+<p>The inspected local installation contains <code>tools/bin/godotpcktool.exe</code>. This establishes local availability, not inclusion in every vanilla installation. It is an optional development tool and is not a runtime dependency of released mods.</p>
+<h2 id="verification-boundaries">Verification Boundaries<a class="headerlink" href="#verification-boundaries" title="Permanent link">&para;</a></h2>
+<p>The tutorial was audited against the installed <code>v0.107.1</code> assembly, its XML documentation, runtime configuration, and PCK. Loader behavior, hook ordering, model factories, UI stack methods, localization merging, and save-property serialization were traced in the decompiled implementation. Historical pack headers and contents were inspected separately.</p>
+<p>Complete content and GUI class examples were compiled against the installed game DLLs. GUI source-generation output was also checked for callback bindings. Short fragments and placeholders are explanatory snippets rather than standalone projects.</p>
+<p>The example mod has not been exercised in a running game during this audit. In-game save restoration, multiplayer behavior, texture rendering, focus, and tooltip order remain the explicit validation scenarios in the chapters, rather than reported test outcomes. Public release announcements provide branch context, not a substitute for inspecting the binary.</p>
 <h2 id="community-material">Community Material<a class="headerlink" href="#community-material" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://lamali292.github.io/sts2_modding_guide/">STS2 C# Modding Guide</a></li>

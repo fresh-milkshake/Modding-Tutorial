@@ -609,6 +609,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#shipped-xml-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shipped XML Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -773,6 +784,8 @@
   
     
     
+      
+        
       
         
       
@@ -956,6 +969,34 @@
     
   
     14. Custom GUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-state-saves-and-randomness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. State, Saves, And Randomness
   
 
     
@@ -1219,6 +1260,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#shipped-xml-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shipped XML Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1311,7 +1363,7 @@
 </ul>
 <p>The current loader's directory scan and initializer methods are private implementation details. Inspect them when validating behavior, but do not build mod code that calls them directly.</p>
 <h2 id="pck-workflow">PCK Workflow<a class="headerlink" href="#pck-workflow" title="Permanent link">&para;</a></h2>
-<p>The game-shipped PCK tool can list or extract selected files:</p>
+<p>A compatible PCK tool such as the locally available <code>godotpcktool.exe</code> can list or extract selected files:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">godotpcktool</span><span class="p">.</span><span class="n">exe</span> <span class="p">`</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  <span class="p">-</span><span class="n">-pack</span> <span class="s1">&#39;&lt;STS2&gt;\SlayTheSpire2.pck&#39;</span> <span class="p">`</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  <span class="p">-</span><span class="n">-action</span> <span class="n">list</span> <span class="p">`</span>
@@ -1347,6 +1399,9 @@
 <li>test a clean new run and a save created by the previous release</li>
 </ol>
 <p>Compilation is only the first compatibility check. Harmony targets, reflection names, resource paths, and lifecycle order can change without producing compile errors.</p>
+<h2 id="shipped-xml-documentation">Shipped XML Documentation<a class="headerlink" href="#shipped-xml-documentation" title="Permanent link">&para;</a></h2>
+<p>The current data directory includes <code>sts2.xml</code> beside <code>sts2.dll</code>. Keep the XML alongside the referenced assembly so an IDE can display its summaries and parameter documentation. Search its member entries before decompiling large types; inspect the implementation when lifecycle or ordering remains unclear.</p>
+<p>XML comments describe intent, while the installed assembly defines the actual signature. Use <a href="../appendix-api-inventory/">the API inventory</a> to locate relevant types, then validate the exact member against both sources.</p>
 
 
 
