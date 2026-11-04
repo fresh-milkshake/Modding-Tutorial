@@ -22,7 +22,7 @@ Published version: [GitHub Pages](https://fresh-milkshake.github.io/Modding-Tuto
 
 - STS2: `v0.107.1`
 - game commit: `59260271`
-- release metadata date: `2026-06-18T15:43:56-07:00`
+- tutorial last verified: `2026-11-04`
 - target framework: `net9.0`
 - bundled .NET runtime: `9.0.7`
 - main PCK format: Godot `4.5.1`
@@ -66,9 +66,3 @@ This tutorial does not teach C#, Harmony, Godot, illustration, or game design fr
 ## License
 
 [MIT](LICENSE)
-
-## Verification And Branches
-
-Last API and resource inspection: **2026-11-04**, stable `v0.107.1` (`59260271`). This baseline describes the installed stable branch. The public beta is a separate compatibility target; do not assume its APIs or balance changes are present here.
-
-The code examples are checked by compilation against the installed assemblies. Compilation and resource inspection do not replace the in-game validation matrices in each chapter.
