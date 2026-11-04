@@ -1,6 +1,6 @@
 # Appendix A. API Inventory
 
-Verified against `sts2.dll` from STS2 `v0.103.3`, commit `460a0ece`.
+Verified against `sts2.dll` from STS2 `v0.107.1`, commit `59260271`.
 
 ## `ModManifest`
 
@@ -15,6 +15,7 @@ JSON fields:
 - `has_dll`
 - `dependencies`
 - `affects_gameplay`
+- `min_game_version`
 
 `id` is required. The loader resolves sibling `<id>.dll` and `<id>.pck` files from the manifest directory. `pck_name` is not a current field.
 
@@ -26,9 +27,12 @@ Public members of interest:
 - `bool PlayerAgreedToModLoading`
 - `event Action<Mod> OnModDetected`
 - `event MetricsUploadHook OnMetricsUpload`
-- `Initialize(IModManagerFileIo, ModSettings?)`
+- `Task Initialize(IModManagerFileIo, ModSettings?, SemanticVersion?)`
+- `ModManagerState State`
+- `EvaluateBranchSupport(PlatformBranch, IReadOnlyList<(string MinBranch, string MaxBranch)>)`
 - `GetModdedLocTables(string language, string file)`
 - `GetGameplayRelevantModNameList()`
+- `GetNonGameplayRelevantModNameList()`
 - `IsRunningModded()`
 - `HasHarmonyPatches()`
 - `GetLoadedMods()`
@@ -44,6 +48,7 @@ Current fields:
 - `path`
 - `state`
 - `manifest`
+- `version` (parsed `SemanticVersion?`)
 - `assembly`
 - `errors`
 
@@ -104,7 +109,7 @@ Important overrides and properties:
 - `Pool`
 - `CanonicalKeywords`
 - `CanonicalTags`
-- `GetResultPileType()`
+- `GetResultPileTypeForCardPlay()`
 
 Public description method:
 
@@ -179,7 +184,7 @@ Current integration surfaces:
 - `NRelicCollection.Create()`
 - `ActiveScreenContext`
 
-`NOverlayStack` owns overlay visuals and lifecycle. `NSubmenuStack` owns submenu navigation and is not automatically the correct visual parent.
+`NOverlayStack` owns overlay visuals and lifecycle. `NSubmenuStack.Push` manages navigation without attaching the screen; concrete stack factories create and parent supported screens. The current run stack parents its cached libraries under itself.
 
 ## Hooks
 
@@ -188,4 +193,12 @@ Current integration surfaces:
 1. `AfterCardPlayed(PlayerChoiceContext, CardPlay)`
 2. `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)`
 
-Use the late model hook for behavior that assumes normal card resolution has completed.
+The late pass follows ordinary post-play listeners for each individual play. Both passes precede final result-pile movement and are skipped if combat has ended. See [card resolution](05-entrypoints-harmony-and-hooks.md#card-resolution).
+
+## Version And Loader Types
+
+`ModDependency` contains JSON fields `id` and optional `min_version`; `ModManifest.dependencies` is `List<ModDependency>?`. `ModManifest.ReadFromStream(Stream, out List<LocString>?)` reads manifests and migrates legacy string dependencies with a diagnostic.
+
+`ModManagerState` values are `None`, `Initialized`, and `Skipped`. This is loader initialization state, separate from each `Mod.state`. `Skipped` covers test/AOT paths and the `nomods` command-line option. Per-mod state, errors, and parsed version should be inspected when diagnosing compatibility.
+
+See [versioned manifests](03-mod-loading-and-manifests.md#versioned-dependencies) for the authoring contract.

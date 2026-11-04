@@ -4,7 +4,7 @@ STS2 UI integration is primarily a hierarchy problem. A screen can have a lifecy
 
 ## Current Native Roles
 
-Important types in `v0.103.3` include:
+Important types in `v0.107.1` include:
 
 - `NOverlayStack`: run-time overlay host and stack
 - `NModalContainer`: single modal host with a dimming backstop
@@ -37,14 +37,15 @@ public interface IOverlayScreen : IScreenContext
 
 ## Visual Host And Lifecycle Owner
 
-`NSubmenuStack` is not a safe default visual parent. It owns open, close, push, pop, and back-navigation semantics for `NSubmenu` instances. Native screens can know their stack while living under a different control that supplies the expected geometry.
+`NSubmenuStack.Push` manages navigation and assigns stack ownership; it does not itself attach a screen to the scene tree. The concrete `NRunSubmenuStack.GetSubmenuType<T>()` factories create and cache supported screens, including `NCardLibrary` and `NRelicCollection`, and add them as children of that stack.
 
 This explains a common failure pattern:
 
-- adding a screen only to a submenu stack gives it lifecycle but the wrong coordinate root
-- adding a native submenu only to an overlay gives it pixels but no native back-navigation lifecycle
+- calling `Push` on a newly created screen without attaching it leaves it outside the visual tree
+- manually reparenting a native screen can change its coordinate root and clipping
+- attaching a native submenu without its stack protocol omits native navigation ownership
 
-Inspect the vanilla parent chain of the screen you are reusing and reproduce the division of responsibility rather than forcing both roles onto one node.
+Prefer the concrete stack's `GetSubmenuType<T>()` or `PushSubmenuType<T>()` for screens it supports. For a custom host, inspect and reproduce both the native attachment and navigation protocol. Parenting under a stack is not inherently invalid; the host's actual geometry determines the result.
 
 ## Reusing Native Libraries
 
@@ -98,3 +99,7 @@ Change the hierarchy only after these values identify the incorrect coordinate r
 6. reproduce the smallest valid lifecycle in the mod
 
 Chapter 14 applies this model to a self-contained `IOverlayScreen` that does not depend on a custom `.tscn` file.
+
+## Related Sections
+
+Continue with the [complete custom GUI example](14-custom-gui.md#overlay-implementation), or the [event layout discussion](13-custom-act-events.md#portrait) for UI owned by an event.

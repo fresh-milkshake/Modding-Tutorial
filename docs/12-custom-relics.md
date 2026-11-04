@@ -115,6 +115,8 @@ Use `AfterObtained` and `AfterRemoved` for state changes tied to ownership. Comb
 
 ## Stateful Relics
 
+For a complete counter-based example, continue with [State, Saves, Cloning, And Randomness](15-state-saves-and-randomness.md#a-relic-that-remembers-played-cards).
+
 For counters and persistent fields, inspect:
 
 - `ShowCounter`
@@ -137,7 +139,7 @@ Verify:
 
 1. the shared relic pool contains the model
 2. a reward can generate it
-3. `RelicCmd.Obtain` creates an owned mutable instance
+3. `RelicCmd.Obtain` receives the mutable instance and establishes ownership
 4. the start-of-combat hook fires once per combat
 5. Block uses the expected modifier semantics
 6. small, outline, and large art render
@@ -145,3 +147,7 @@ Verify:
 8. a run containing the relic saves and reloads
 
 The most diagnostic failure is `RelicModel.get_Pool()` throwing a missing-element exception. Fix registration before investigating UI code.
+
+## Related Sections
+
+The hook used here follows [semantic hook selection](05-entrypoints-harmony-and-hooks.md#semantic-hooks). See [unlock and catalog visibility](06-assets-pck-and-localization.md#unlock-and-catalog-visibility) when the relic works in a run but appears hidden in the collection.

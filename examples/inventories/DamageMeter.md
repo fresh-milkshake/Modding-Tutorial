@@ -16,6 +16,5 @@ Observed PCK characteristics:
 - Godot `4.5.1`
 - legacy loose and embedded manifests
 - custom localization files, source files, imports, and `project.binary`
-- settings stored outside the game root through Godot user data
 
-The directory-first archive anticipated the current installation style, but its legacy manifest schema is not the `v0.103.3` schema. Replace it with `DamageMeter.json` containing current fields before compatibility testing.
+The directory-first archive anticipated the current installation style, but its legacy manifest schema is not the `v0.107.1` schema. Replace it with `DamageMeter.json` containing current fields before compatibility testing.

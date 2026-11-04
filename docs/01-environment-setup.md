@@ -6,7 +6,7 @@ STS2 modding combines a managed assembly, a Godot resource pack, and a loader bu
 
 The baseline used throughout this handbook is:
 
-- STS2 `v0.103.3`, commit `460a0ece`
+- STS2 `v0.107.1`, commit `59260271`
 - .NET target framework `net9.0`
 - bundled Microsoft.NETCore.App `9.0.7`
 - Godot PCK version `4.5.1`
@@ -58,7 +58,7 @@ Required only for content packs:
 
 - a Godot 4.5.1 .NET editor or a compatible PCK packer
 
-Useful local tools may be shipped under `<STS2>/tools`, including `godotpcktool.exe`. They are development conveniences, not runtime dependencies of a mod.
+Useful local tools can be placed under `<STS2>/tools`, including `godotpcktool.exe`. The inspected installation has that executable, but its presence does not establish that every vanilla Steam install includes it. Treat it as an optional development tool, not a mod runtime dependency.
 
 ## Preflight Check
 
@@ -81,3 +81,9 @@ Record these values in release notes or a maintenance issue. Version evidence ma
 - assuming a successful DLL build proves the PCK and manifest are valid
 
 The next chapter maps these files to the loader stages that consume them.
+
+## Verification And Branches
+
+Last API and resource inspection: **2026-11-04**, stable `v0.107.1` (`59260271`). This baseline describes the installed stable branch. The public beta is a separate compatibility target; do not assume its APIs or balance changes are present here.
+
+The code examples are checked by compilation against the installed assemblies. Compilation and resource inspection do not replace the in-game validation matrices in each chapter.

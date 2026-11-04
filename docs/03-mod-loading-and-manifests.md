@@ -64,7 +64,7 @@ The source tree separates managed models from Godot resources. The staging direc
 
 ## One External Manifest
 
-`v0.103.3` uses one manifest file discovered below `<STS2>/mods`. Name it `<ModId>.json` and place it beside the declared payloads:
+`v0.107.1` uses one manifest file discovered below `<STS2>/mods`. Name it `<ModId>.json` and place it beside the declared payloads:
 
 ```json
 {
@@ -73,6 +73,7 @@ The source tree separates managed models from Godot resources. The staging direc
   "author": "Example Author",
   "description": "Adds an example card, potion, relic, event, and overlay.",
   "version": "0.1.0",
+  "min_game_version": "0.107.1",
   "has_pck": true,
   "has_dll": true,
   "dependencies": [],
@@ -91,7 +92,8 @@ Current fields:
 | `version` | Mod version shown to the loader and metrics |
 | `has_pck` | Require and load `<id>.pck` |
 | `has_dll` | Require and load `<id>.dll` |
-| `dependencies` | Manifest IDs that must load first |
+| `dependencies` | Objects with a dependency `id` and optional `min_version` |
+| `min_game_version` | Minimum supported game semantic version |
 | `affects_gameplay` | Whether the mod is included in gameplay-relevant mod reporting |
 
 There is no `pck_name` field in the current `ModManifest`, and an embedded `mod_manifest.json` is not the active loader contract.
@@ -112,6 +114,9 @@ The external manifest filename does not technically define identity, but matchin
 Use an explicit initializer when the mod registers content, subscribes hooks, or needs startup logging:
 
 ```csharp
+using FieldNotes.Cards;
+using FieldNotes.Potions;
+using FieldNotes.Relics;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Models.CardPools;
@@ -133,6 +138,8 @@ public static class ModEntry
 ```
 
 Pool registration must happen before the game freezes pool contents. `ModHelper` throws when a model is added after initialization.
+
+The three model classes are defined in chapters 10-12. Add those classes before building this combined initializer; the bootstrap in chapter 5 can be used independently for a behavior-only mod.
 
 ## Build And Stage
 
@@ -158,3 +165,25 @@ Copy the whole staged directory to:
 ```
 
 Root-level manifests and payloads still work because discovery is recursive from `mods/`, but per-mod directories isolate filenames, simplify removal, and match the loader's directory ownership model.
+
+## Versioned Dependencies
+
+Use dependency objects for new releases:
+
+```json
+{
+  "dependencies": [
+    { "id": "RequiredLibrary", "min_version": "1.2.0" }
+  ]
+}
+```
+
+This fragment illustrates the dependency field; the standalone FieldNotes example needs no library and retains `dependencies: []`. Use the dependency's manifest ID, not its display name or DLL filename.
+
+`min_version` may be omitted when no minimum is required. If specified, the dependency must declare a parseable semantic version at least that high. Missing, invalid, or lower dependency versions produce distinct loader errors. Keep the mod's own `version` parseable even when it has no dependencies.
+
+`min_game_version` checks the installed game version. An absent value currently logs a warning and assumes compatibility; an invalid value or a requirement above the installed version prevents loading. This minimum is not proof of compatibility with every later release.
+
+The older array of strings is temporarily migrated by `ModManifest.ReadFromStream`, but produces a migration diagnostic and is scheduled for removal. Publish object entries instead.
+
+See [release validation](09-packaging-installing-and-verifying.md#manifest-checklist) and [version errors](08-debugging-and-fast-iteration.md#version-and-workshop-failures).

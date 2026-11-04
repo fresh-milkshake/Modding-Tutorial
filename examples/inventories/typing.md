@@ -14,4 +14,4 @@ Observed PCK characteristics:
 - legacy developer-oriented embedded manifest
 - source and icon resources
 
-The historical manifest quality illustrates why release validation should inspect the final staged payload. On `v0.103.3`, supply a valid external manifest and test all referenced signatures.
+On `v0.107.1`, supply a valid external manifest and test all referenced signatures. Historical package contents do not establish compatibility with the current build.

@@ -20,9 +20,9 @@ Published version: [GitHub Pages](https://fresh-milkshake.github.io/Modding-Tuto
 
 ## Verified Baseline
 
-- STS2: `v0.103.3`
-- game commit: `460a0ece`
-- release metadata date: `2026-05-29T13:36:05-07:00`
+- STS2: `v0.107.1`
+- game commit: `59260271`
+- release metadata date: `2026-06-18T15:43:56-07:00`
 - target framework: `net9.0`
 - bundled .NET runtime: `9.0.7`
 - main PCK format: Godot `4.5.1`
@@ -45,6 +45,7 @@ Early Access updates can change signatures and loader contracts. Re-check `relea
 12. [Custom relics](docs/12-custom-relics.md)
 13. [Custom act events](docs/13-custom-act-events.md)
 14. [Custom GUI](docs/14-custom-gui.md)
+15. [State, saves, cloning, and randomness](docs/15-state-saves-and-randomness.md)
 
 Use [docs/handbook-overview.md](docs/handbook-overview.md) as the handbook table of contents. The appendices contain compact API and package references.
 
@@ -65,3 +66,9 @@ This tutorial does not teach C#, Harmony, Godot, illustration, or game design fr
 ## License
 
 [MIT](LICENSE)
+
+## Verification And Branches
+
+Last API and resource inspection: **2026-11-04**, stable `v0.107.1` (`59260271`). This baseline describes the installed stable branch. The public beta is a separate compatibility target; do not assume its APIs or balance changes are present here.
+
+The code examples are checked by compilation against the installed assemblies. Compilation and resource inspection do not replace the in-game validation matrices in each chapter.

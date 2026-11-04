@@ -54,7 +54,7 @@ The current loader's directory scan and initializer methods are private implemen
 
 ## PCK Workflow
 
-The game-shipped PCK tool can list or extract selected files:
+A compatible PCK tool such as the locally available `godotpcktool.exe` can list or extract selected files:
 
 ```powershell
 godotpcktool.exe `
@@ -97,3 +97,9 @@ After every STS2 update:
 5. test a clean new run and a save created by the previous release
 
 Compilation is only the first compatibility check. Harmony targets, reflection names, resource paths, and lifecycle order can change without producing compile errors.
+
+## Shipped XML Documentation
+
+The current data directory includes `sts2.xml` beside `sts2.dll`. Keep the XML alongside the referenced assembly so an IDE can display its summaries and parameter documentation. Search its member entries before decompiling large types; inspect the implementation when lifecycle or ordering remains unclear.
+
+XML comments describe intent, while the installed assembly defines the actual signature. Use [the API inventory](appendix-api-inventory.md) to locate relevant types, then validate the exact member against both sources.

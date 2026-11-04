@@ -6,6 +6,23 @@ The example intentionally creates controls in C#. Production interfaces can move
 
 ## Attach After `NRun` Exists
 
+### Godot Callback Bindings
+
+The plain class-library project in chapter 3 is sufficient for model classes, but custom Godot subclasses also need generated C# engine bindings. Keep each node class `partial` and include Godot's matching source generator as a build-time analyzer while retaining the game-shipped `GodotSharp.dll` reference:
+
+```xml
+<PropertyGroup>
+  <GodotProjectDir>$(MSBuildProjectDirectory)</GodotProjectDir>
+</PropertyGroup>
+<ItemGroup>
+  <CompilerVisibleProperty Include="GodotProjectDir" />
+  <PackageReference Include="Godot.SourceGenerators" Version="4.5.1"
+                    PrivateAssets="all" />
+</ItemGroup>
+```
+
+`GodotProjectDir` must identify the directory used as the source `res://` root, with these C# source files beneath it. For this code-created overlay it is the C# project directory. If node scripts are later instantiated from packed scenes, align generated script paths with the exported Godot project and include the corresponding script resources. Use one node class per matching source filename, such as `ResearchOverlay.cs`. Inspect generated bindings for `_Ready` and `_UnhandledKeyInput`; a build that merely accepts the overrides is not proof that the engine can dispatch them. See [Godot's C# integration documentation](https://docs.godotengine.org/en/4.5/tutorials/scripting/c_sharp/diagnostics/GD0001.html).
+
 The mod initializer runs before a run UI exists. Do not create Godot nodes there. Patch `NRun._Ready` and attach one controller to that run node:
 
 ```csharp
@@ -89,7 +106,8 @@ public sealed partial class ResearchOverlay : Control, IOverlayScreen
     public static void Open()
     {
         var stack = NOverlayStack.Instance;
-        if (stack is null || stack.Peek() is ResearchOverlay)
+        if (stack is null || stack.GetChildren().OfType<ResearchOverlay>()
+            .Any(screen => !screen.IsQueuedForDeletion()))
         {
             return;
         }
@@ -245,7 +263,7 @@ If a custom overlay launches one of them:
 - let the submenu stack push and pop it
 - keep tooltip layers above custom dimming controls
 
-Attaching a native submenu directly under `NSubmenuStack` can give it lifecycle but an invalid coordinate root. Attaching it only under `NOverlayStack` can give it geometry but no submenu navigation.
+The current `NRunSubmenuStack` already hosts these screens as children. Prefer its `GetSubmenuType<T>()` or `PushSubmenuType<T>()` factories instead of duplicating their creation and attachment logic. `NSubmenuStack.Push` alone does not add a newly created screen to the scene tree.
 
 ## Failure Modes
 
@@ -255,7 +273,7 @@ Check that `NRun._Ready` was patched, the controller exists under the current ru
 
 ### Overlay opens twice
 
-Check both controller duplication and `stack.Peek()` protection. Static singleton flags often survive scene replacement and are less reliable than inspecting the current tree.
+Check both controller duplication and existing overlay children. Checking only `Peek()` misses a custom overlay underneath another screen. The example ignores queued-for-deletion children so a closing overlay does not block the next open indefinitely.
 
 ### Tooltips are hidden
 
@@ -283,3 +301,7 @@ Verify:
 8. starting a new run creates a fresh controller without stale static state
 
 Once this lifecycle is stable, replace the generated controls with a packed scene or expand the panel into a model browser, settings page, picker, or debugging surface.
+
+## Related Sections
+
+Review [overlay ownership](07-native-ui-and-runtime-inspection.md#overlay-contract) and [tooltip ordering](07-native-ui-and-runtime-inspection.md#tooltip-and-layer-ordering) when extending this panel. Use the [iteration loop](08-debugging-and-fast-iteration.md#iteration-loop) to test each scene-lifecycle change.

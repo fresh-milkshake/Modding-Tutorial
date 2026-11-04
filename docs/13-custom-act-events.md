@@ -144,11 +144,13 @@ internal static class OvergrowthEventsPatch
 }
 ```
 
-This patch is narrow: it changes only the event list of `Overgrowth`. Add equivalent patches for other acts only when the event belongs there.
+This patch changes only the event list of `Overgrowth`. `Underdocks` is another first-act variant in this build; a run using it will not receive this event through the patch above. Add equivalent patches for other acts only when the event belongs there.
 
 For an event intended to appear in every act, patch the getter for `ModelDb.AllSharedEvents` before the model database is preloaded. Keep duplicate protection because aggregate lists can be evaluated more than once.
 
 ## Eligibility
+
+For seeded offers and the lifetime of event RNG, see [event rolls](15-state-saves-and-randomness.md#event-rolls).
 
 Override `IsAllowed(IRunState runState)` for conditions such as:
 
@@ -158,7 +160,7 @@ Override `IsAllowed(IRunState runState)` for conditions such as:
 - the event is incompatible with multiplayer
 - another modded state is available
 
-Eligibility is evaluated during room-set validation and event selection. Keep it deterministic for a given run state; random decisions belong in the event's seeded `Rng` and `CalculateVars`.
+Eligibility is checked when the room set validates the next event for selection. Keep it deterministic for a given run state; random offer values belong in the event's seeded `Rng` and `CalculateVars`.
 
 ## Multi-Page Events
 
@@ -189,3 +191,7 @@ Verify:
 8. a save made before entering and during the event reloads safely
 
 Existing acts generate their room sets when a run begins. Adding the patch to a DLL does not retroactively insert the event into an already generated act save.
+
+## Related Sections
+
+This example depends on the [custom card](10-custom-cards.md#implementation). Read [safe Harmony targeting](05-entrypoints-harmony-and-hooks.md#harmony-patches) before adapting the act patch, and [native UI ownership](07-native-ui-and-runtime-inspection.md) before building a custom event layout.

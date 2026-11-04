@@ -89,7 +89,7 @@ Create `godot/FieldNotes/localization/eng/potions.json`:
 }
 ```
 
-The selection prompt matters for target-driven use flows. Even if one mode currently skips the prompt, complete localization prevents a later UI path from exposing a raw key.
+`SelectionScreenPrompt` supplies text for potion implementations that open a selection screen, such as a card picker. It is not the label used automatically for `TargetType.AnyPlayer` targeting. The example includes the key for completeness; its draw effect does not open such a picker.
 
 ## Fixed Art Path
 
@@ -158,9 +158,13 @@ Verify:
 1. `SharedPotionPool.AllPotions` contains the potion
 2. normal rewards and merchants can generate it
 3. hover text resolves before and during combat
-4. the target prompt appears when more than one player is valid
+4. player targeting allows the intended eligible players
 5. the chosen player draws the cards
 6. the base texture and optional outline render in every potion slot
 7. a save containing the potion reloads
 
 If `PotionModel.Pool` throws, registration is missing or late. If the model works but the bottle is blank, inspect the fixed atlas-resource path inside the final PCK.
+
+## Related Sections
+
+Review [pool membership](06-assets-pck-and-localization.md#pool-membership) and the shared [localization contract](06-assets-pck-and-localization.md#localization-contract). For blank images or load failures, see [content diagnostics](08-debugging-and-fast-iteration.md#content-failure-signatures).

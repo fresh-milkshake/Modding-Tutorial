@@ -49,7 +49,7 @@ Check `has_dll`, `has_pck`, case, and basenames.
 
 ### Dependency failure
 
-Check that every dependency string equals another manifest's `id`. Display names and assembly names are not dependency identifiers. Inspect logs for missing or circular chains.
+Check that every dependency object's `id` equals another manifest's `id`. Display names and assembly names are not dependency identifiers. Inspect logs for missing or circular chains.
 
 ### Initializer failure
 
@@ -88,7 +88,7 @@ Check whether the model expects a PNG or a `.tres` texture resource. Potion art 
 
 ### Card effect runs but card flow breaks
 
-The effect is attached too early or owns the wrong async chain. Prefer the model's `OnPlay` for a custom card and `AfterCardPlayedLate` for external post-resolution behavior.
+The effect may own the wrong async chain or make an invalid timing assumption. Prefer the model's `OnPlay` for a custom card. `AfterCardPlayedLate` follows ordinary post-play listeners, but still precedes final pile movement; see [card resolution](05-entrypoints-harmony-and-hooks.md#card-resolution).
 
 ## Save-State Troubleshooting
 
@@ -98,6 +98,8 @@ Active saves may exist under both:
 - `<Steam>/userdata/<AccountId>/2868840/remote/...`
 
 Modded runs use modded profile save paths. Before editing or deleting a save, close the game and preserve both copies. Cloud synchronization can restore the copy that was not changed.
+
+The current path provider uses `steam/<SteamId>/modded/profile<ProfileId>/saves/` for modded profile saves below `user://`. Non-modded profiles omit `modded/`. Steam's local cloud cache is a separate location; inspect actual files and timestamps rather than assuming the cache always contains a matching active save.
 
 Custom models serialize by model ID through the game's save types. Renaming a model class changes its generated entry ID unless compatibility code maps the old ID. Treat class names as persistent data once a release can appear in a save.
 
@@ -127,3 +129,13 @@ After a game update, test:
 7. GUI open, close, focus, and tooltip ordering
 
 This matrix detects semantic drift that a successful build cannot prove absent.
+
+## Version And Workshop Failures
+
+Inspect `Mod.state` and `Mod.errors` before changing gameplay code. Current compatibility failures distinguish invalid or unsupported `min_game_version`, invalid dependency minima, missing or invalid dependency versions, and versions below the required minimum.
+
+`Loaded` alone does not prove successful initialization. The current loader records initializer/PatchAll failures in `errors` while still assigning `Loaded`; missing declared payloads can be logged without forcing `Failed`. Check the expected assembly, payload log lines, and errors together.
+
+A legacy string dependency list is migrated with a warning; replace it with [object entries](03-mod-loading-and-manifests.md#versioned-dependencies). A Workshop branch mismatch is a separate check from semantic version requirements.
+
+If Workshop changes appear to have no effect, look for a local mod with the same ID: it takes precedence and disables the Workshop duplicate. Remove that local copy while the game is closed and retest. Changing settings does not unload assemblies already loaded into the process.

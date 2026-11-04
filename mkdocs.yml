@@ -74,6 +74,7 @@ nav:
       - 12. Custom Relics: 12-custom-relics.md
       - 13. Custom Act Events: 13-custom-act-events.md
       - 14. Custom GUI: 14-custom-gui.md
+      - 15. State, Saves, And Randomness: 15-state-saves-and-randomness.md
   - Reference:
       - Appendix A. API Inventory: appendix-api-inventory.md
       - Appendix B. Release Package Patterns: appendix-example-mods.md

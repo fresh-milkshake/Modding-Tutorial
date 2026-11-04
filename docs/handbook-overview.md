@@ -16,9 +16,9 @@ This order matters during Early Access. A working pattern from an older release 
 
 | Item | Verified value |
 | --- | --- |
-| STS2 version | `v0.103.3` |
-| Commit | `460a0ece` |
-| Release metadata date | `2026-05-29T13:36:05-07:00` |
+| STS2 version | `v0.107.1` |
+| Commit | `59260271` |
+| Release metadata date | `2026-06-18T15:43:56-07:00` |
 | Target framework | `net9.0` |
 | Bundled .NET runtime | `9.0.7` |
 | Main PCK format | Godot `4.5.1` |
@@ -33,7 +33,7 @@ mods/
     MyMod.pck
 ```
 
-The PCK is optional for code-only mods. There is no second embedded manifest contract in `v0.103.3`.
+The PCK is optional for code-only mods. There is no second embedded manifest contract in `v0.107.1`.
 
 ## Foundation
 
@@ -56,6 +56,7 @@ The following chapters build a small fictional content set called `FieldNotes`. 
 12. [12. Custom Relics](12-custom-relics.md)
 13. [13. Custom Act Events](13-custom-act-events.md)
 14. [14. Custom GUI](14-custom-gui.md)
+15. [15. State, Saves, Cloning, And Randomness](15-state-saves-and-randomness.md)
 
 The sequence deliberately repeats the same lifecycle:
 
@@ -72,3 +73,9 @@ The sequence deliberately repeats the same lifecycle:
 - [References](references.md)
 
 The tutorial assumes basic familiarity with C#, async methods, Harmony attributes, and the Godot scene tree. It focuses on STS2-specific contracts rather than general language instruction.
+
+## Verification And Branches
+
+Last API and resource inspection: **2026-11-04**, stable `v0.107.1` (`59260271`). This baseline describes the installed stable branch. The public beta is a separate compatibility target; do not assume its APIs or balance changes are present here.
+
+The code examples are checked by compilation against the installed assemblies. Compilation and resource inspection do not replace the in-game validation matrices in each chapter.

@@ -18,7 +18,7 @@ public static class ModEntry
 }
 ```
 
-An explicit initializer is preferable even though `v0.103.3` falls back to automatic `Harmony.PatchAll` when no initializer exists. Registration, hook subscriptions, compatibility checks, and startup logging need a deterministic location.
+An explicit initializer is preferable even though `v0.107.1` falls back to automatic `Harmony.PatchAll` when no initializer exists. Registration, hook subscriptions, compatibility checks, and startup logging need a deterministic location.
 
 ## Three Integration Levels
 
@@ -45,13 +45,17 @@ Read the exact signature and inspect at least one vanilla caller. The position o
 
 ### Card Resolution
 
-For an effect described as "after a card has resolved", use `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)` as the baseline. It runs later than the immediate post-play hook and is safer for effects that assume result-pile movement and the normal play sequence have completed.
+`Hook.AfterCardPlayed` dispatches all ordinary `AfterCardPlayed` listeners, then all `AfterCardPlayedLate(PlayerChoiceContext, CardPlay)` listeners. The late pass is useful when an effect must follow the ordinary listeners for that individual play.
+
+Prefer ordinary `AfterCardPlayed` unless this second-pass ordering is required; the base model's XML comments explicitly recommend it for usual post-play effects.
+
+Both passes occur inside the card's play-count loop, before the final result-pile movement and visual cleanup. They run only while combat remains in progress. A repeated card can reach them more than once; a combat-ending play may not reach them. For behavior tied to a pile transition, inspect `AfterCardChangedPiles` and its callers instead of assuming that "Late" means after the whole play wrapper.
 
 Do not replace or wrap a concrete card's `OnPlay` merely to observe completion. Owning the wrong task chain can leave cards in the wrong pile, interrupt animations, or duplicate cleanup.
 
 ## Mod-Owned Hook Subscribers
 
-`v0.103.3` adds explicit subscription paths for models that are not naturally reached through a card, relic, power, or modifier collection:
+`v0.107.1` exposes subscription paths for models that are not naturally reached through a card, relic, power, or modifier collection:
 
 ```csharp
 ModHelper.SubscribeForRunStateHooks(
@@ -71,7 +75,7 @@ Harmony remains appropriate for:
 
 - adding an event to a concrete act list
 - inserting a launcher into an existing UI lifecycle
-- correcting a value before no semantic hook exists
+- correcting a value where no semantic hook exists
 - observing a private implementation boundary after verifying its stability
 
 Prefer exact targets:

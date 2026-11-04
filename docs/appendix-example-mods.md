@@ -1,6 +1,6 @@
 # Appendix B. Release Package Patterns
 
-Older community archives show several layouts, but the current loader contract is determined by `v0.103.3`, not by historical package contents.
+Older community archives show several layouts, but the current loader contract is determined by `v0.107.1`, not by historical package contents.
 
 ## Current Install-Ready Pattern
 

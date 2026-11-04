@@ -24,15 +24,15 @@ The verified local `release_info.json` contains:
 
 ```json
 {
-  "commit": "460a0ece",
-  "version": "v0.103.3",
-  "date": "2026-05-29T13:36:05-07:00",
-  "branch": "v0.103.3",
-  "main_assembly_hash": -1584622192
+  "commit": "59260271",
+  "version": "v0.107.1",
+  "date": "2026-06-18T15:43:56-07:00",
+  "branch": "v0.107.1",
+  "main_assembly_hash": -1555940892
 }
 ```
 
-This handbook was revalidated after Major Update #1. Public update notes identify `v0.103.2` as the main-branch consolidation of the preceding beta changes; the installed build used here is the later `v0.103.3` release.
+This handbook uses Major Update #2, `v0.107.1`. The [official announcement feed](https://steamcommunity.com/app/2868840/announcements/?l=english) distinguishes stable releases from beta updates.
 
 ## Loader Sequence
 
@@ -64,7 +64,7 @@ Current public `ModManager` functionality includes loaded-mod enumeration, mod s
 
 ## Dependencies
 
-`dependencies` is a list of manifest IDs, not display names or filenames. The loader delays a mod until all declared dependencies are loaded. Missing and circular dependencies are reported as load failures.
+`dependencies` is a list of objects containing `id` and optional `min_version`. The loader orders dependencies and checks their declared semantic versions. Missing dependencies, circular chains, and unsatisfied minimum versions prevent loading. See the [manifest examples](03-mod-loading-and-manifests.md#versioned-dependencies).
 
 Use dependencies only for real runtime requirements. A mod that merely interoperates with another mod should usually detect it at runtime instead of making it mandatory.
 
@@ -77,3 +77,11 @@ The loader also tracks player consent and disabled mods. A correct payload can r
 When `has_pck` is true, the loader calls `ProjectSettings.LoadResourcePack` for `<id>.pck`. The pack can add resources anywhere below `res://`, subject to Godot path and collision rules. Localization is more specific: the current loader probes `res://<id>/localization/<language>/<file>` for every loaded mod.
 
 The next chapter turns this loader behavior into a project and installation layout.
+
+## Workshop And Duplicate Mods
+
+The loader also discovers subscribed Workshop items and checks their supported Steam branch ranges. Branch compatibility is distinct from the manifest's minimum game version: passing one check does not imply passing the other.
+
+When the same mod ID is found locally and through Workshop, the local copy takes precedence and the Workshop copy receives `DisabledDuplicate`. Disable or remove the local development copy before testing a Workshop release.
+
+`ModManager.Initialize(IModManagerFileIo, ModSettings?, SemanticVersion?)` now returns `Task`. This is the game's startup API; a mod's attributed initializer remains a static method called by the loader. See [initialization](05-entrypoints-harmony-and-hooks.md#explicit-initialization) and [load diagnostics](08-debugging-and-fast-iteration.md#version-and-workshop-failures).

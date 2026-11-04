@@ -98,7 +98,7 @@ Base models resolve resources differently:
 
 This distinction determines whether to override a property or place a resource at a native path. Chapters 10-13 document each contract.
 
-Namespaced raw assets are safe:
+Namespaced resource paths reduce collision risk:
 
 ```text
 res://FieldNotes/images/cards/field_notes.png
@@ -121,6 +121,8 @@ The PCK does not need a second mod manifest. The external `<id>.json` controls l
 
 After packing, list the final archive and verify the exact internal paths. A successful pack command proves only that a file was produced.
 
+For textures, retain the source-path `.import` remap and the generated `.godot/imported/...` resource that it references. A `.tres` pointing at a PNG does not itself generate texture imports. Export through a matching Godot project or pack the already imported resources together; do not assume copying raw PNGs into a PCK is sufficient for exported-game resource loading.
+
 ## Resource Validation
 
 Test each model in at least these contexts:
@@ -132,3 +134,7 @@ Test each model in at least these contexts:
 - save and reload after obtaining the item
 
 This matrix catches missing pool membership, bad art paths, hidden unlock state, and serialization failures earlier than ordinary playtesting.
+
+## Related Sections
+
+For complete implementations, continue with [cards](10-custom-cards.md), [potions](11-custom-potions.md), [relics](12-custom-relics.md), or [act events](13-custom-act-events.md). Their [validation matrices](08-debugging-and-fast-iteration.md#update-regression-matrix) complement registration checks.

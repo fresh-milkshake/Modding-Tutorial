@@ -79,7 +79,7 @@ The constructor defines four independent properties:
 - rarity
 - target type
 
-`OnPlay` uses game commands rather than direct state mutation. The commands preserve command ordering, visuals, and multiplayer choice context. `GainsBlock` is presentation metadata used by systems that classify the card's behavior.
+`OnPlay` uses game commands rather than direct state mutation. Awaiting them keeps their state changes and visuals in the play sequence; the supplied choice context carries choices through the game's flow. Commands alone do not synchronize an arbitrary external caller. `GainsBlock` identifies a card as granting Block to consumers of that property.
 
 ## Dynamic Variables
 
@@ -135,7 +135,7 @@ Because `PortraitPath` is virtual, the example uses a namespaced PNG:
 res://FieldNotes/images/cards/field_notes.png
 ```
 
-The card frame, banner, energy icon, and other chrome come from the selected pool. Only the portrait is custom.
+The selected pool supplies frame material and energy styling; type and rarity also select native frame and banner resources. Only the portrait is overridden in this example.
 
 The default portrait path uses an atlas resource below `res://images/atlases/card_atlas.sprites/<pool>/`. Overriding the path avoids adding a bridge resource to that shared native directory. Verify the PNG imports as a `Texture2D` and appears in both combat and the card library.
 
@@ -155,7 +155,7 @@ Use the run state's factory when adding a card to a deck. It establishes ownersh
 The base class calls `OnUpgrade` while applying an upgrade level. More complex cards can also override:
 
 - `MaxUpgradeLevel`
-- `GetResultPileType`
+- `GetResultPileTypeForCardPlay`
 - canonical keywords and tags
 - extra description arguments
 - creation and transformation callbacks
@@ -175,3 +175,7 @@ Verify:
 7. a run containing the card saves and reloads
 
 If the card exists but never appears in rewards, the problem is selection or unlock filtering. If the effect runs but card movement breaks, the problem is the play lifecycle rather than registration.
+
+## Related Sections
+
+Pool and visibility rules are explained in [content infrastructure](06-assets-pck-and-localization.md#pool-membership). For follow-up effects outside this card, see [semantic hooks](05-entrypoints-harmony-and-hooks.md#semantic-hooks). The [act event example](13-custom-act-events.md#event-model) shows how to grant this card.
